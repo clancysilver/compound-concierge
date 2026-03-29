@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Compound Concierge — Editor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600;700&family=Bebas+Neue&family=Cormorant+Garamond:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=Lora:wght@400;500;600;700&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--eb:#f5f3f0;--e2:#ffffff;--e3:#f0eeeb;--eB:#ddd;--eB2:#ccc;--eT:#1a1816;--eT2:#666;--eT3:#999;--eA:#B8860B;--eAd:rgba(184,134,11,0.1);--eR:#dc3545;--eG:#28a745}
+html{background:var(--eb);color:var(--eT);font-family:'Outfit',sans-serif;-webkit-font-smoothing:antialiased}
+body{display:flex;height:100vh;overflow:hidden}
+.ep{width:380px;min-width:380px;height:100vh;background:#fafaf8;border-right:2px solid #d0cdc8;display:flex;flex-direction:column;overflow:hidden;z-index:10}
+.eh{padding:12px 20px;border-bottom:1px solid var(--eB);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.eh h1{font-size:14px;font-weight:700}
+.badges{display:flex;gap:6px;align-items:center}
+.badge{font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:100px}
+.badge.live{background:var(--eAd);color:var(--eA)}
+.badge.saved{background:rgba(74,222,128,0.1);color:var(--eG);opacity:0;transition:opacity .3s}
+.badge.saved.show{opacity:1}
+.etabs{display:flex;border-bottom:1px solid var(--eB);flex-shrink:0}
+.etab{flex:1;padding:9px 4px;font-size:10px;font-weight:500;text-align:center;color:var(--eT3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all .15s}
+.etab:hover{color:var(--eT2)}.etab.active{color:var(--eA);border-bottom-color:var(--eA);background:#f5f3f0}
+.ebody{flex:1;overflow-y:auto;padding:14px 18px}
+.ebody::-webkit-scrollbar{width:4px}.ebody::-webkit-scrollbar-thumb{background:#c0bdb8;border-radius:2px}
+.esec{display:none}.esec.active{display:block}
+.ch{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;cursor:pointer;border-bottom:1px solid #d4d0ca;background:#e2dfda;position:sticky;top:0;z-index:2;user-select:none;border-left:3px solid transparent;transition:all .15s;font-weight:600}
+.ch:first-child{border-top:none}
+.ch h3{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--eT2)}
+.ch .cv{font-size:12px;color:var(--eT3);transition:transform .2s}.ch.open .cv{transform:rotate(180deg)}
+.cb2{display:none;padding-bottom:10px}.cb2.open{display:block;max-height:65vh;overflow-y:auto}
+.er{margin-bottom:10px}
+.el{display:block;font-size:11px;font-weight:500;color:var(--eT2);margin-bottom:4px}
+.ecr{display:flex;align-items:center;gap:8px}
+.eci{width:32px;height:32px;border:2px solid #ccc;border-radius:6px;cursor:pointer;padding:0;background:none;-webkit-appearance:none;overflow:hidden}
+.eci::-webkit-color-swatch-wrapper{padding:0}.eci::-webkit-color-swatch{border:none;border-radius:4px}
+.ehx{flex:1;background:#fff;border:1px solid #ccc;border-radius:6px;padding:7px 10px;color:var(--eT);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none}
+.ehx:focus{border-color:var(--eA)}
+.ei{width:100%;background:#fff;border:1px solid #ccc;border-radius:6px;padding:8px 10px;color:var(--eT);font-family:'Outfit',sans-serif;font-size:12px;outline:none}
+.ei:focus{border-color:var(--eA)}
+textarea.ei{min-height:50px;resize:vertical;line-height:1.5}
+.es{width:100%;background:#fff;border:1px solid #ccc;border-radius:6px;padding:8px 10px;color:var(--eT);font-family:'Outfit',sans-serif;font-size:12px;outline:none;-webkit-appearance:none;cursor:pointer}
+.es:focus{border-color:var(--eA)}
+.etr{display:flex;align-items:center;justify-content:space-between;padding:6px 0}
+.etr+.etr{border-top:1px solid #e0ddd8}
+.etr .tl{font-size:12px;font-weight:500}
+.etg{width:38px;height:22px;background:#ccc;border:none;border-radius:11px;cursor:pointer;position:relative;transition:background .2s;flex-shrink:0}
+.etg.on{background:#B8860B}
+.etg::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:#fff;border-radius:50%;transition:transform .2s}
+.etg.on::after{transform:translateX(16px)}
+.eb2{width:100%;padding:9px;border:1px solid var(--eB2);border-radius:6px;background:var(--e3);color:var(--eT);font-family:'Outfit',sans-serif;font-size:11px;font-weight:500;cursor:pointer;transition:all .15s;text-align:center}
+.eb2:hover{background:#ddd;border-color:#bbb}
+.eb2.pri{background:var(--eA);border-color:var(--eA);color:#0A0A0A;font-weight:600}
+.eb2+.eb2{margin-top:5px}
+.ediv{height:1px;background:var(--eB);margin:12px 0}
+.egt{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--eT3);margin-bottom:8px}
+.slider-row{display:flex;align-items:center;gap:10px}
+.slider-row input[type=range]{flex:1;-webkit-appearance:none;background:#ccc;height:4px;border-radius:2px;outline:none}
+.slider-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--eA);cursor:pointer}
+.sv{font-size:12px;font-weight:600;color:var(--eA);min-width:36px;text-align:right;font-family:'JetBrains Mono',monospace}
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.pcard{padding:8px;border:1px solid #ddd;border-radius:6px;background:#fff;cursor:pointer;transition:all .15s;text-align:center;position:relative}
+.pcard:hover{border-color:var(--eA)}
+.pcard .dots{display:flex;gap:3px;justify-content:center;margin-bottom:4px}
+.pcard .dots span{width:12px;height:12px;border-radius:50%;display:block}
+.pcard .nm{font-size:10px;font-weight:500;color:var(--eT2)}
+.pcard .dp{position:absolute;top:3px;right:3px;width:16px;height:16px;background:rgba(232,69,69,.15);border:none;border-radius:50%;color:var(--eR);font-size:10px;cursor:pointer;display:none;align-items:center;justify-content:center}
+.pcard:hover .dp{display:flex}
+.ie{background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px;margin-bottom:5px}
+.ie .r{display:flex;gap:5px;margin-bottom:4px}.ie .r:last-child{margin-bottom:0}
+.ie input,.ie select{flex:1;background:var(--eb);border:1px solid var(--eB2);border-radius:5px;padding:5px 7px;color:var(--eT);font-family:'Outfit',sans-serif;font-size:11px;outline:none;min-width:0}
+.ie input:focus,.ie select:focus{border-color:var(--eA)}
+.ie .tm{max-width:75px;font-family:'JetBrains Mono',monospace}
+.rb{background:#fff;border:1px solid rgba(220,53,69,.25);color:var(--eR);border-radius:5px;padding:3px 7px;font-size:9px;font-family:inherit;cursor:pointer;flex-shrink:0}
+.ab{width:100%;padding:7px;border:1px dashed #bbb;border-radius:6px;background:none;color:var(--eT3);font-family:inherit;font-size:10px;cursor:pointer;margin-top:3px}
+.ab:hover{border-color:var(--eA);color:var(--eA)}
+.lz{border:2px dashed #ccc;border-radius:8px;padding:16px;text-align:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.lz:hover{border-color:var(--eA)}.lz.has{border-style:solid;padding:10px}
+.lz img{max-width:100%;max-height:100px;object-fit:contain;display:block;margin:0 auto}
+.lz .ph{font-size:11px;color:var(--eT3)}.lz .ph span{font-size:24px;display:block;margin-bottom:6px}
+.lr{position:absolute;top:4px;right:4px;width:20px;height:20px;background:rgba(232,69,69,.2);border:none;border-radius:50%;color:var(--eR);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.dst{display:flex;gap:3px;margin-bottom:10px}
+.dst button{flex:1;padding:6px 4px;font-size:10px;font-weight:600;text-align:center;background:var(--e3);border:1px solid var(--eB2);border-radius:6px;color:var(--eT3);cursor:pointer;font-family:inherit}
+.dst button.active{background:var(--eAd);border-color:var(--eA);color:var(--eA)}
+.pw{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#e8e6e2}
+.pt{display:flex;align-items:center;justify-content:space-between;padding:7px 14px;background:#f2f0ed;border-bottom:1px solid #ddd;flex-shrink:0}
+.pt .left{display:flex;align-items:center;gap:5px}
+.db{padding:5px 10px;border:1px solid #ccc;border-radius:5px;background:none;color:var(--eT3);font-family:inherit;font-size:10px;cursor:pointer;transition:all .15s}
+.db.active{background:#e0ddd8;color:var(--eT);border-color:#bbb}
+.mt{display:flex;background:#fff;border:1px solid #ccc;border-radius:5px;overflow:hidden}
+.mt button{padding:5px 10px;border:none;background:none;color:var(--eT3);font-family:inherit;font-size:10px;cursor:pointer;transition:all .15s}
+.mt button.active{background:var(--eAd);color:var(--eA)}
+.pc{flex:1;display:flex;justify-content:center;align-items:flex-start;overflow:auto;padding:20px;background:#e5e3df}
+.pf{width:390px;height:844px;border:2px solid #ccc;border-radius:40px;overflow:hidden;background:#0a0a0a;flex-shrink:0;box-shadow:0 0 40px rgba(0,0,0,.15)}
+.pf.tablet{width:768px;height:1024px;border-radius:20px}
+.pf.full{width:100%;height:100%;border:none;border-radius:0;box-shadow:none}
+.pf iframe{width:100%;height:100%;border:none}
+.xt{position:fixed;top:16px;right:16px;background:#fff;border:1px solid var(--eA);border-radius:8px;padding:10px 16px;color:var(--eA);font-size:12px;font-weight:500;z-index:1000;opacity:0;transform:translateY(-10px);transition:all .3s;pointer-events:none}
+.xt.show{opacity:1;transform:translateY(0)}
+.sw-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.sw-item{position:relative;cursor:pointer;transition:transform .1s}
+.sw-item:hover{transform:scale(1.1)}
+.sw-circle{width:32px;height:32px;border-radius:50%;border:2px solid #ccc}
+.sw-item:hover .sw-circle{border-color:var(--eA)}
+.sw-item .sw-del{position:absolute;top:-4px;right:-4px;width:14px;height:14px;background:rgba(232,69,69,.9);border:none;border-radius:50%;color:#fff;font-size:8px;cursor:pointer;display:none;align-items:center;justify-content:center;line-height:1}
+.sw-item:hover .sw-del{display:flex}
+.sw-tip{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:#ccc;color:#fff;font-size:9px;padding:3px 6px;border-radius:4px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;margin-bottom:4px}
+.sw-item:hover .sw-tip{opacity:1}
+.sw-add{width:32px;height:32px;border-radius:50%;border:2px dashed #ccc;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--eT3);font-size:16px;transition:all .15s}
+.sw-add:hover{border-color:var(--eA);color:var(--eA)}
+
+.cb2{max-height:500px;overflow-y:auto}
+.cb2::-webkit-scrollbar{width:3px}
+.cb2::-webkit-scrollbar-track{background:transparent}
+.cb2::-webkit-scrollbar-thumb{background:#ccc;border-radius:2px}
+
+.sec-sep{height:2px;background:linear-gradient(to right,transparent,var(--eB2),transparent);margin:4px 0}
+
+.ch{background:var(--e3);border-left:3px solid transparent}
+.ch.open{border-left-color:var(--eA)}
+.ch h3{color:var(--eT)}
+
+.ebody{background:#f2f0ed}
+
+.ie{background:#e0ddd8;border-color:#d0cdc8}
+
+.egt{color:var(--eA);font-size:9px;letter-spacing:.14em;margin-top:4px}
+.ch:hover{border-left-color:var(--eA)!important}.ch.open{border-left-color:var(--eA)!important;background:#ddd9d2}.sec-wrap{border:1px solid #c8c4be;border-radius:8px;margin-bottom:12px;overflow:hidden;background:#f0eee9;box-shadow:0 1px 3px rgba(0,0,0,0.06)}.ebody{padding:8px 12px!important}.sched-drag{opacity:0.4;border:1px dashed var(--eA)!important}
+.sched-over{border-top:2px solid var(--eA)!important}
+.ie[draggable]{cursor:grab}
+.ie[draggable]:active{cursor:grabbing}
+.ie .drag-handle{cursor:grab;color:var(--eT3);font-size:14px;padding:0 4px;user-select:none}
+.sch-modal{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.3);display:none;align-items:center;justify-content:center}
+.sch-modal.show{display:flex}
+.sch-modal-box{background:#fff;border:1px solid #ccc;border-radius:12px;padding:20px;width:320px;max-height:80vh;overflow-y:auto;box-shadow:0 8px 30px rgba(0,0,0,.15)}
+.sch-modal-box h3{font-size:15px;font-weight:700;margin-bottom:4px}
+.sch-modal-box p{font-size:12px;color:#888;margin-bottom:14px}
+.sch-modal-box .day-check{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #eee;cursor:pointer;font-size:13px;font-weight:500}
+.sch-modal-box .day-check:last-of-type{border-bottom:none}
+.sch-modal-box .day-check input{width:16px;height:16px;accent-color:var(--eA)}
+.sch-modal-box .modal-actions{display:flex;gap:6px;margin-top:14px}
+.sch-modal-box .modal-actions button{flex:1;padding:10px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.sch-modal-box .modal-cancel{background:#f0eeeb;border:1px solid #ccc;color:#333}
+.sch-modal-box .modal-confirm{background:var(--eA);border:1px solid var(--eA);color:#fff}
+.sched-over-below{border-bottom:2px solid var(--eA)!important}
+.sec-wrap[draggable]{cursor:default}
+.sec-wrap .ch .drag-handle{cursor:grab;color:var(--eT3);font-size:16px;padding:0 6px;user-select:none}
+.sec-wrap .ch .drag-handle:active{cursor:grabbing}
+.sec-wrap.sched-drag{opacity:0.4;border:1px dashed var(--eA)!important}
+.sec-wrap.sched-over{border-top:3px solid var(--eA)!important}
+.sec-wrap.sched-over-below{border-bottom:3px solid var(--eA)!important}
+</style>
+</head>
+<body>
+<div class="sch-modal" id="schModal" onclick="if(event.target===this)this.classList.remove('show')">
+<div class="sch-modal-box">
+<h3 id="schModalTitle">Copy</h3>
+<p id="schModalDesc">Select days</p>
+<div id="schModalDays"></div>
+<div class="modal-actions">
+<button class="modal-cancel" onclick="document.getElementById('schModal').classList.remove('show')">Cancel</button>
+<button class="modal-confirm" onclick="schModalConfirm()">Copy</button>
+</div>
+</div>
+</div>
+<div class="xt" id="xt"></div>
+<div class="ep">
+  <div class="eh"><h1>Concierge Editor</h1><div class="badges"><span class="badge saved" id="sv">Saved</span><span class="badge live">Live</span></div></div>
+  <div class="etabs" id="tabs"></div>
+  <div class="ebody" id="ebody"></div>
+</div>
+<div class="pw">
+  <div class="pt">
+    <div class="left"><button class="db active" onclick="sdev('phone',this)">Phone</button><button class="db" onclick="sdev('tablet',this)">Tablet</button><button class="db" onclick="sdev('full',this)">Desktop</button></div>
+    <span style="font-size:10px;color:var(--eT3)">Live Preview</span>
+  </div>
+  <div class="pc"><div class="pf" id="pf"><iframe id="fr" sandbox="allow-scripts allow-same-origin"></iframe></div></div>
+</div>
+<script>
+const LI={phone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',car:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.8 3.8 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>',calendar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>',home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',sparkles:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3Z"/></svg>',alert:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>',bus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.5-1.7.8-2.8c.1-.4.2-.8.2-1.2 0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/></svg>',info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',hand:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 11V6a2 2 0 0 0-4 0"/><path d="M14 10V4a2 2 0 0 0-4 0v2"/><path d="M10 10.5V6a2 2 0 0 0-4 0v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>',users:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',map:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></svg>',siren:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 18v-6a5 5 0 1 1 10 0v6"/><path d="M5 21a1 1 0 0 1-1-1v-1a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H5Z"/></svg>'};
+const EM={phone:'\u{1F4DE}',car:'\u{1F698}',calendar:'\u{1F4C5}',home:'\u{1F3E0}',sparkles:'\u2728',alert:'\u26A0\uFE0F',bus:'\u{1F690}',info:'\u2139\uFE0F',hand:'\u270B',users:'\u{1F465}',map:'\u{1F5FA}',siren:'\u{1F6A8}',breakfast:'\u{1F373}',lunch:'\u{1F957}',latenight:'\u{1F319}',plunge:'\u{1F9CA}',massage:'\u{1F486}',gym:'\u{1F4AA}',housekeeping:'\u{1F9F9}',pin:'\u{1F4CD}',quiet:'\u{1F92B}',wristband:'\u{1F3F7}\uFE0F'};
+
+const DEF={colors:{bg:'#0A0A0A',bgCard:'#141414',border:'#222222',text:'#F5F0EB',textMid:'#B5AFA8',textDim:'#8A8580',accent:'#D4A843',bannerBg:'#0A0A0A',bannerText:'#D4A843',btnPrimaryBg:'#D4A843',btnPrimaryText:'#0A0A0A',btnSecondaryBg:'#141414',btnSecondaryBorder:'#222222',scheduleTime:'#D4A843',navActive:'#D4A843',navInactive:'#8A8580',emergency:'#E84545',btnPillBg:'rgba(212,168,67,0.12)',btnPillText:'#D4A843',headings:'#F5F0EB',headingIcons:'#D4A843',formText:'#1A1816',formBg:'#FFFFFF',toastBg:'#141414',toastText:'#D4A843'},
+fontHeading:'Outfit',fontBody:'Outfit',fontTime:'JetBrains Mono',borderRadius:16,
+uiIconSet:'emoji',contentIconSet:'emoji',customIcons:[],iconOverrides:{},
+useLogo:false,logoData:'',logoHeight:48,
+showBanner:true,bannerText:"Tonight's shuttle schedule extended to 3 AM",
+hero:{label:'Coachella Weekend 2026',title:'Welcome to The Compound',brand:'GUESS Jeans'},
+homeCTA:{show:true,label:'Call Concierge',phone:'+18339628944',icon:'phone'},
+showScheduleOnHome:true,showScheduleInNav:true,
+notifyPhone:'',notifyEmail:'',notifySMS:true,notifyEmailOn:true,requestForm:{show:true,types:['Car Request','Maintenance Issue','Housekeeping','Dietary Request','Other'],houses:['House 1','House 2','House 3','House 4','House 5','House 6','House 7','House 8','Main House']},
+sections:[
+{id:'concierge',name:'Concierge',navLabel:'Concierge',icon:'phone',showInNav:false,showOnHome:false,cardBg:'',blocks:[]},
+{id:'house',name:'House Guide',navLabel:'House',icon:'home',showInNav:true,showOnHome:true,cardBg:'',blocks:[
+  {type:'wifi',showDetails:false,entries:[
+{house:'Villa 1',network:'Bravo80958',password:'BravoClownfish1'},
+{house:'Villa 2',network:'Bravo80904',password:'GiantSquid02'},
+{house:'Villa 3',network:'Bravo80854',password:'BravoCrab3'},
+{house:'Villa 4',network:'Bravo80853',password:'BravoEel4'},
+{house:'Villa 5',network:'Bravo80899',password:'BravoWhale5'},
+{house:'Villa 6',network:'Bravo80957',password:'BravoMola7'},
+{house:'Villa 7',network:'Bravo80956',password:'BravoRobin7'},
+{house:'Villa 8',network:'Bravo80902',password:'BravoShark8'},
+{house:'Villa 9',network:'Bravo80852',password:'BravoSquid9'},
+{house:'Villa 10',network:'Bravo80915',password:'BravoOrca10'},
+{house:'Villa 11',network:'Bravo80843',password:'BravoCat11'},
+{house:'Villa 12',network:'Bravo49883',password:'BravoOctopus12'},
+{house:'Villa 13',network:'Bravo49813',password:'BravoSeal13'},
+{house:'Villa 14',network:'Bravo49757',password:'BravoClam14'},
+{house:'Villa 15',network:'Bravo49743',password:'BravoBarnacle15'},
+{house:'Villa 16',network:'Bravo49645',password:'BravoBarracuda16'}
+]},
+  {type:'bulletGroup',title:'Essentials',items:['Quiet hours: 3 AM \u2013 8 AM (outdoor areas)','Pool closes at 2 AM','No glass outdoors','Smoking outdoors only','No outside guests without approval']},
+  {type:'bulletGroup',title:'Climate',items:['Thermostats preset for comfort','Please do not set below 68\u00B0F']},
+  {type:'bulletGroup',title:'Check-Out',items:['Leave keys on kitchen counter','Check-out by 11 AM Sunday','Lost items: contact Concierge']}
+]},
+{id:'amenities',name:'Amenities',navLabel:'Amenities',icon:'sparkles',showInNav:true,showOnHome:true,cardBg:'',blocks:[
+  {type:'cardList',items:[
+    {icon:'breakfast',title:'Breakfast',desc:'8 AM to 11 AM \u2014 Main House'},
+    {icon:'lunch',title:'Lunch',desc:'12 PM to 3 PM \u2014 Main House'},
+    {icon:'latenight',title:'Late Night',desc:'1 AM to 3 AM \u2014 Main House Kitchen'},
+    {icon:'plunge',title:'Cold Plunge & Sauna',desc:'House 2 \u2014 Available all day'},
+    {icon:'massage',title:'Massage',desc:'Book via Concierge'},
+    {icon:'gym',title:'Gym',desc:'Main House Garage \u2014 24/7'},
+    {icon:'housekeeping',title:'Housekeeping',desc:'Daily from 10 AM. Laundry on request.'}
+  ]}
+]},
+{id:'transport',name:'Transportation',navLabel:'Rides',icon:'bus',showInNav:true,showOnHome:true,cardBg:'',blocks:[
+  {type:'textBlock',title:'Shuttles to Festival',body:'Every 30 min from Main Gate, 1 PM \u2014 9 PM'},
+  {type:'textBlock',title:'Return Shuttles',body:'Begin after headliner set. Pickup at VIP Lot B.'},
+  {type:'contactList',title:'Drivers',items:[{label:'Miguel',sub:'Primary Driver',phone:''},{label:'Luxury SUV',sub:'Dispatch',phone:''}]},
+  {type:'callout',body:'Use the street address, not the compound name.'}
+]},
+{id:'info',name:'Important Info',navLabel:'Info',icon:'alert',showInNav:true,showOnHome:true,cardBg:'',blocks:[
+  {type:'emergencyCard',items:[{label:'Medical / Security Emergency',phone:'911',highlight:true},{label:'Compound Security',phone:'',highlight:false}]},
+  {type:'bulletGroup',title:'Safety',items:['Please do not share this location publicly.','Respect neighbors and local regulations.','Wear your wristband at all times inside the compound.']},
+  {type:'contactList',title:'Contacts',items:[{label:'Concierge / Ops',sub:'Available 24/7',phone:'+18339628944'},{label:'Security',sub:'',phone:''},{label:'Production Office',sub:'',phone:''},{label:'Property Manager',sub:'',phone:''}]}
+]}
+],
+schedule:[{date:'2026-04-09',label:'THURSDAY \u2014 APRIL 9',short:'THU 9',items:[{time:'12:00 PM',end:'',title:'Check-In Opens',sub:'Main House'},{time:'2:00 PM',end:'3:30 PM',title:'Welcome Lunch',sub:'Pool Area'},{time:'5:00 PM',end:'',title:'House Tour',sub:'Main Gate'},{time:'7:00 PM',end:'9:00 PM',title:'Welcome Dinner',sub:'Main House'},{time:'10:00 PM',end:'',title:'Opening Night',sub:'House 3'}]},{date:'2026-04-10',label:'FRIDAY \u2014 APRIL 10',short:'FRI 10',items:[{time:'8:00 AM',end:'11:00 AM',title:'Breakfast Service',sub:'Main House'},{time:'10:00 AM',end:'12:00 PM',title:'Wellness / Recovery',sub:'House 2'},{time:'1:00 PM',end:'9:00 PM',title:'Shuttle Departures',sub:'Main Gate'},{time:'6:00 PM',end:'9:00 PM',title:'Pre-Party',sub:'House 3'},{time:'10:00 PM',end:'',title:'Festival Departures',sub:''},{time:'2:00 AM',end:'3:30 AM',title:'Late-Night Food',sub:'Main House Kitchen'}]},{date:'2026-04-11',label:'SATURDAY \u2014 APRIL 11',short:'SAT 11',items:[{time:'8:00 AM',end:'11:00 AM',title:'Breakfast Service',sub:'Main House'},{time:'10:00 AM',end:'12:00 PM',title:'Wellness / Recovery',sub:'House 2'},{time:'12:00 PM',end:'4:00 PM',title:'Pool Party',sub:'Main House Pool'},{time:'1:00 PM',end:'9:00 PM',title:'Shuttles Begin',sub:'Main Gate'},{time:'7:00 PM',end:'10:00 PM',title:'GUESS x Coachella Party',sub:'House 3'},{time:'10:00 PM',end:'',title:'Festival Departures',sub:''},{time:'2:00 AM',end:'3:30 AM',title:'Late-Night Food',sub:'Main House Kitchen'}]},{date:'2026-04-12',label:'SUNDAY \u2014 APRIL 12',short:'SUN 12',items:[{time:'8:00 AM',end:'11:00 AM',title:'Breakfast',sub:'Main House'},{time:'10:00 AM',end:'',title:'Wellness',sub:'House 2'},{time:'11:00 AM',end:'',title:'Check-Out Begins',sub:''},{time:'1:00 PM',end:'',title:'Shuttles',sub:'Main Gate'},{time:'6:00 PM',end:'',title:'Closing Dinner',sub:'Main House'}]}],
+customPresets:[],swatches:[
+{name:'PMS 0821 C',hex:'#74D1EA'},{name:'PMS 600 C',hex:'#F1EB9C'},{name:'PMS 635 C',hex:'#A4DBE8'},
+{name:'PMS 516 C',hex:'#E6BEDD'},{name:'PMS 2246 C',hex:'#A8D5BA'},{name:'PMS 298 C',hex:'#41B6E6'}
+],_sd:0,_cs:0};
+
+let S;const SK='conciergeV6';
+const SB_URL='https://bikgkvdkvaatqrphkjla.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpa2drdmRrdmFhdHFycGhramxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDM3MDMsImV4cCI6MjA4NjMxOTcwM30.Hu5XkJoWnCAObIk4FD-zFhw8VFg9LjpX0of2YJQnRDI';
+const SB_PROJECT='guess-coachella-2026';
+async function loadFromSB(){try{const r=await fetch(SB_URL+'/rest/v1/concierge_configs?project_name=eq.'+SB_PROJECT+'&select=config',{headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY}});const d=await r.json();if(d&&d[0]&&d[0].config&&Object.keys(d[0].config).length>0){S=d[0].config;for(const k of Object.keys(DEF))if(!(k in S))S[k]=JSON.parse(JSON.stringify(DEF[k]));return true;}}catch(e){console.log('SB load failed',e);}return false;}
+function load(){try{const r=localStorage.getItem(SK);S=r?JSON.parse(r):null;if(!S)S=JSON.parse(JSON.stringify(DEF));for(const k of Object.keys(DEF))if(!(k in S))S[k]=JSON.parse(JSON.stringify(DEF[k]));}catch(e){S=JSON.parse(JSON.stringify(DEF));}}
+let saveTimer;function save(){try{localStorage.setItem(SK,JSON.stringify(S));}catch(e){}clearTimeout(saveTimer);saveTimer=setTimeout(saveToSB,800);const b=document.getElementById('sv');b.classList.add('show');setTimeout(()=>b.classList.remove('show'),800);}
+async function saveToSB(){try{await fetch(SB_URL+'/rest/v1/concierge_configs?project_name=eq.'+SB_PROJECT,{method:'PATCH',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({config:S,updated_at:new Date().toISOString()})});console.log('Saved to Supabase');}catch(e){console.log('SB save failed',e);}}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function h2r(h){h=h.replace('#','');return parseInt(h.substr(0,2),16)+','+parseInt(h.substr(2,2),16)+','+parseInt(h.substr(4,2),16);}
+function isLt(h){h=h.replace('#','');return(parseInt(h.substr(0,2),16)*299+parseInt(h.substr(2,2),16)*587+parseInt(h.substr(4,2),16)*114)/1000>128;}
+function ico(n,isContent){
+  if(S.iconOverrides[n]){const ci=S.customIcons.find(x=>x.name===S.iconOverrides[n]);if(ci)return'<span class="ci">'+ci.svg+'</span>';}
+  const s=isContent?S.contentIconSet:S.uiIconSet;
+  if(s==='none')return'';if(s==='minimal')return'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:currentColor;margin-right:4px"></span>';
+  if(s==='lucide'&&LI[n])return'<span class="li">'+LI[n]+'</span>';
+  if(s==='lucide'&&!LI[n])return EM[n]||'';
+  return EM[n]||'';}
+function nico(n){
+  if(S.iconOverrides[n]){const ci=S.customIcons.find(x=>x.name===S.iconOverrides[n]);if(ci)return'<span class="nci">'+ci.svg+'</span>';}
+  const s=S.uiIconSet;
+  if(s==='none')return'';if(s==='minimal')return'<span style="display:block;width:6px;height:6px;border-radius:50%;background:currentColor;margin:6px auto 0"></span>';
+  if(s==='lucide'&&LI[n])return'<span class="nli">'+LI[n]+'</span>';return'<span class="ni">'+(EM[n]||'')+'</span>';}
+function ptime(t){if(!t)return 9999;const m=t.match(/(\d+):(\d+)\s*(AM|PM)/i);if(!m)return 9999;let h=parseInt(m[1]),mi=parseInt(m[2]);const p=m[3].toUpperCase();if(p==='AM'&&h===12)h=0;if(p==='PM'&&h!==12)h+=12;if(h<6)h+=24;return h*60+mi;}
+function ssort(items){return items.slice().sort((a,b)=>ptime(a.time)-ptime(b.time));}
+const DAYS=['SUNDAY','MONDAY','TUESDAY','WEDNESDAY','THURSDAY','FRIDAY','SATURDAY'];
+const DSHORT=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+const MONTHS=['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+function d2l(dateStr){if(!dateStr)return null;const p=dateStr.split('-');const d=new Date(+p[0],+p[1]-1,+p[2]);const dow=d.getDay();const day=d.getDate();const mon=d.getMonth();return{label:DAYS[dow]+' \u2014 '+MONTHS[mon]+' '+day,short:DSHORT[dow]+' '+day};}
+function sortDays(){S.schedule.sort((a,b)=>(a.date||'9999')>(b.date||'9999')?1:-1);S._sd=Math.min(S._sd,S.schedule.length-1);}
+function setDayDate(dateStr){S.schedule[S._sd].date=dateStr;const labels=d2l(dateStr);if(labels){S.schedule[S._sd].label=labels.label;S.schedule[S._sd].short=labels.short;}sortDays();save();rndr();rp();}
+function addDay(){const dateStr=prompt('Date (YYYY-MM-DD):','2026-04-');if(!dateStr)return;const labels=d2l(dateStr);const nd={date:dateStr,label:labels?labels.label:'NEW DAY',short:labels?labels.short:'NEW',items:[]};S.schedule.push(nd);sortDays();S._sd=S.schedule.findIndex(d=>d.date===dateStr);save();rndr();rp();}
+
+const TABS=['theme','content','sched','export'];
+const TNAMES=['Theme','Content','Schedule','Export'];
+let curTab='theme';
+
+function initTabs(){document.getElementById('tabs').innerHTML=TABS.map((t,i)=>`<button class="etab${t===curTab?' active':''}" onclick="stab('${t}',this)">${TNAMES[i]}</button>`).join('');}
+function stab(t,btn){curTab=t;document.querySelectorAll('.etab').forEach(e=>e.classList.remove('active'));if(btn)btn.classList.add('active');rndr();}
+function rndr(){
+  // Preserve open states
+  const openIds=[];document.querySelectorAll('.ch.open').forEach(el=>{const id=el.nextElementSibling?.id;if(id)openIds.push(id);});
+  const E=document.getElementById('ebody');if(curTab==='theme')E.innerHTML=rTheme();else if(curTab==='content')E.innerHTML=rContent();else if(curTab==='sched')E.innerHTML=rSched();else if(curTab==='export')E.innerHTML=rExport();
+  // Restore open states
+  openIds.forEach(id=>{const el=document.getElementById(id);if(el){el.classList.add('open');if(el.previousElementSibling)el.previousElementSibling.classList.add('open');}});}
+
+function coll(id,title,body,open){return`<div class="ch${open?' open':''}" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')"><h3>${title}</h3><span class="cv">\u25BC</span></div><div class="cb2${open?' open':''}" id="${id}">${body}</div>`;}
+function colorRow(key,label){return`<div class="er"><label class="el">${label}</label><div class="ecr"><input type="color" class="eci" value="${S.colors[key]}" onchange="S.colors['${key}']=this.value;this.nextElementSibling.value=this.value;save();rp()"><input class="ehx" value="${S.colors[key]}" onchange="if(/^#[0-9A-Fa-f]{6}$/.test(this.value)){S.colors['${key}']=this.value;this.previousElementSibling.value=this.value;save();rp()}"></div></div>`;}
+
+const PRESETS={
+'Dark + Gold':{bg:'#0A0A0A',bgCard:'#141414',border:'#222222',text:'#F5F0EB',textMid:'#B5AFA8',textDim:'#8A8580',accent:'#D4A843',bannerBg:'#0A0A0A',bannerText:'#D4A843',btnPrimaryBg:'#D4A843',btnPrimaryText:'#0A0A0A',btnSecondaryBg:'#141414',btnSecondaryBorder:'#222222',scheduleTime:'#D4A843',sectionTitle:'#F5F0EB',navActive:'#D4A843',navInactive:'#8A8580',emergency:'#E84545',headings:'#F5F0EB',headingIcons:'#D4A843',formText:'#1A1816',formBg:'#FFFFFF',toastBg:'#141414',toastText:'#D4A843',btnPillBg:'rgba(212,168,67,0.12)',btnPillText:'#D4A843'},
+'Dark + Rose':{bg:'#0D0A0A',bgCard:'#161212',border:'#2A2020',text:'#F5EEEE',textMid:'#B5ABAB',textDim:'#8A7E7E',accent:'#C98B8B',bannerBg:'#0D0A0A',bannerText:'#C98B8B',btnPrimaryBg:'#C98B8B',btnPrimaryText:'#0A0A0A',btnSecondaryBg:'#161212',btnSecondaryBorder:'#2A2020',scheduleTime:'#C98B8B',sectionTitle:'#F5EEEE',navActive:'#C98B8B',navInactive:'#8A7E7E',emergency:'#E84545',headings:'#F5EEEE',headingIcons:'#C98B8B',formText:'#1A1816',formBg:'#FFFFFF',toastBg:'#141414',toastText:'#D4A843',btnPillBg:'rgba(201,139,139,0.12)',btnPillText:'#C98B8B'},
+'Cream':{bg:'#F5F0E8',bgCard:'#FFFFFF',border:'#E0DCD4',text:'#1A1A1A',textMid:'#5A5753',textDim:'#888580',accent:'#1A1A1A',bannerBg:'#F5F0E8',bannerText:'#1A1A1A',btnPrimaryBg:'#1A1A1A',btnPrimaryText:'#FFFFFF',btnSecondaryBg:'#FFFFFF',btnSecondaryBorder:'#E0DCD4',scheduleTime:'#1A1A1A',sectionTitle:'#1A1A1A',navActive:'#1A1A1A',navInactive:'#888580',emergency:'#E84545',headings:'#1A1A1A',headingIcons:'#1A1A1A',formText:'#1A1816',formBg:'#FFFFFF',toastBg:'#141414',toastText:'#D4A843',btnPillBg:'rgba(26,26,26,0.1)',btnPillText:'#1A1A1A'},
+'Midnight':{bg:'#080C14',bgCard:'#0F1520',border:'#1A2438',text:'#E8ECF4',textMid:'#9AADC4',textDim:'#6B7A94',accent:'#6C9CE9',bannerBg:'#080C14',bannerText:'#6C9CE9',btnPrimaryBg:'#6C9CE9',btnPrimaryText:'#080C14',btnSecondaryBg:'#0F1520',btnSecondaryBorder:'#1A2438',scheduleTime:'#6C9CE9',sectionTitle:'#E8ECF4',navActive:'#6C9CE9',navInactive:'#6B7A94',emergency:'#E84545',headings:'#E8ECF4',headingIcons:'#6C9CE9',formText:'#1A1816',formBg:'#FFFFFF',toastBg:'#141414',toastText:'#D4A843',btnPillBg:'rgba(108,156,233,0.12)',btnPillText:'#6C9CE9'},
+'Desert':{bg:'#1A150F',bgCard:'#221C14',border:'#30261C',text:'#F0E8DC',textMid:'#BBA88E',textDim:'#9A8A74',accent:'#C4845C',bannerBg:'#1A150F',bannerText:'#C4845C',btnPrimaryBg:'#C4845C',btnPrimaryText:'#1A150F',btnSecondaryBg:'#221C14',btnSecondaryBorder:'#30261C',scheduleTime:'#C4845C',sectionTitle:'#F0E8DC',navActive:'#C4845C',navInactive:'#9A8A74',emergency:'#E84545',headings:'#F0E8DC',headingIcons:'#C4845C',formText:'#1A1816',formBg:'#FFFFFF',toastBg:'#141414',toastText:'#D4A843',btnPillBg:'rgba(196,132,92,0.12)',btnPillText:'#C4845C'},
+'GUESS Red':{bg:'#0A0A0A',bgCard:'#141414',border:'#222222',text:'#F5F0EB',textMid:'#B5AFA8',textDim:'#8A8580',accent:'#E23D3D',bannerBg:'#0A0A0A',bannerText:'#E23D3D',btnPrimaryBg:'#E23D3D',btnPrimaryText:'#FFFFFF',btnSecondaryBg:'#141414',btnSecondaryBorder:'#222222',scheduleTime:'#E23D3D',sectionTitle:'#F5F0EB',navActive:'#E23D3D',navInactive:'#8A8580',emergency:'#E84545',headings:'#F5F0EB',headingIcons:'#D4A843',formText:'#1A1816',formBg:'#FFFFFF',toastBg:'#141414',toastText:'#D4A843',btnPillBg:'rgba(226,61,61,0.12)',btnPillText:'#E23D3D'}
+};
+
+function rTheme(){
+  let h='';
+
+  // LOGO
+  const lp=S.logoData?`<div class="lz has" onclick="document.getElementById('li').click()"><img src="${S.logoData}"><button class="lr" onclick="event.stopPropagation();S.logoData='';S.useLogo=false;save();stab('theme');">\u00D7</button></div>`:`<div class="lz" onclick="document.getElementById('li').click()"><div class="ph"><span>\u{1F5BC}</span>Click to upload<br><small style="color:#555">PNG / SVG, transparent bg</small></div></div>`;
+  h+=coll('lg','Logo',`<div class="etr"><span class="tl">Use logo instead of text</span><button class="etg${S.useLogo?' on':''}" onclick="this.classList.toggle('on');S.useLogo=this.classList.contains('on');save();rp()"></button></div><div class="er" style="margin-top:8px">${lp}<input type="file" id="li" accept="image/*" style="display:none" onchange="hlu(event)"></div><div class="er"><label class="el">Logo Size: ${S.logoHeight}px</label><div class="slider-row"><input type="range" min="20" max="200" value="${S.logoHeight}" oninput="S.logoHeight=+this.value;this.nextElementSibling.textContent=this.value+'px';save();rp()"><span class="sv">${S.logoHeight}px</span></div></div>`);
+
+  // COLORS
+  h+=coll('cb','Base Colors',colorRow('bg','Background')+colorRow('bgCard','Card Background')+colorRow('border','Border')+colorRow('text','Primary Text')+colorRow('textMid','Secondary Text')+colorRow('textDim','Muted Text')+colorRow('headings','Section Titles')+colorRow('headingIcons','Section Title Icons'));
+  h+=coll('ca','Accent',colorRow('accent','Accent (global default)'));
+  h+=coll('cbn','Banner',colorRow('bannerBg','Banner Background')+colorRow('bannerText','Banner Text'));
+  h+=coll('cbt','Buttons',`<div class="egt">Primary (Call Concierge, Send Request)</div>`+colorRow('btnPrimaryBg','Background')+colorRow('btnPrimaryText','Text')+`<div class="ediv"></div><div class="egt">Secondary (Quick Action Cards)</div>`+colorRow('btnSecondaryBg','Background')+colorRow('btnSecondaryBorder','Border')+`<div class="ediv"></div><div class="egt">Form Fields</div>`+colorRow('formBg','Field Background')+colorRow('formText','Field Text')+`<div class="ediv"></div><div class="egt">Toast / Alerts</div>`+colorRow('toastBg','Toast Background')+colorRow('toastText','Toast Text')+`<div class="ediv"></div><div class="egt">Pill / Action (Call Buttons, Tags)</div>`+colorRow('btnPillBg','Background')+colorRow('btnPillText','Text'));
+  h+=coll('csc','Schedule',colorRow('scheduleTime','Time / Ticker'));
+  h+=coll('cnv','Navigation',colorRow('navActive','Active Tab')+colorRow('navInactive','Inactive Tab'));
+  h+=coll('cem','Emergency',colorRow('emergency','Emergency Highlight'));
+
+  // PRESETS
+  const pc=Object.entries(PRESETS).map(([n,p])=>{const j=JSON.stringify(p).replace(/'/g,"\\'");return`<div class="pcard" onclick="Object.assign(S.colors,JSON.parse('${j}'));save();stab('theme')"><div class="dots"><span style="background:${p.accent}"></span><span style="background:${p.bg}"></span><span style="background:${p.bgCard}"></span></div><div class="nm">${n}</div></div>`;}).join('');
+  const cc=S.customPresets.map((p,i)=>`<div class="pcard" onclick="Object.assign(S.colors,S.customPresets[${i}].colors);save();stab('theme')"><div class="dots"><span style="background:${p.colors.accent}"></span><span style="background:${p.colors.bg}"></span></div><div class="nm">${esc(p.name)}</div><button class="dp" onclick="event.stopPropagation();S.customPresets.splice(${i},1);save();stab('theme');">\u00D7</button></div>`).join('');
+  h+=coll('pr','Presets',`<div class="pgrid">${pc}</div>${cc?'<div class="egt" style="margin-top:8px">Saved</div><div class="pgrid">'+cc+'</div>':''}<div class="ediv"></div><button class="eb2" onclick="var n=prompt(\'Name:\');if(n){S.customPresets.push({name:n,colors:{...S.colors}});save();stab(\'theme\');}">Save Current as Preset</button>`);
+
+  // TYPOGRAPHY
+  const fontOpts=function(cur){return['Outfit','Playfair Display','DM Sans','Bebas Neue','Cormorant Garamond','Space Grotesk','Lora','Source Sans 3'].map(f=>`<option value="${f}"${cur===f?' selected':''}>${f}</option>`).join('');};
+  h+=coll('ty','Typography',`<div class="er"><label class="el">Heading Font</label><select class="es" onchange="S.fontHeading=this.value;save();rp()">${fontOpts(S.fontHeading)}</select></div><div class="er"><label class="el">Body Font</label><select class="es" onchange="S.fontBody=this.value;save();rp()">${fontOpts(S.fontBody)}</select></div><div class="er"><label class="el">Time / Ticker Font</label><select class="es" onchange="S.fontTime=this.value;save();rp()"><option value="JetBrains Mono"${S.fontTime==='JetBrains Mono'?' selected':''}>JetBrains Mono</option>${fontOpts(S.fontTime)}</select></div>`);
+
+  // ICONS
+  const uiSlots=['phone','car','calendar','home','sparkles','alert','bus','info','hand','users','siren'];
+  const contentSlots=['breakfast','lunch','latenight','plunge','massage','gym','housekeeping','pin','quiet','wristband'];
+  const allSlots=[...uiSlots,...contentSlots];
+  const customNames=S.customIcons.map(ci=>ci.name);
+  const overrideOpts=function(slot){
+    const cur=S.iconOverrides[slot]||'';
+    let opts=`<option value=""${!cur?' selected':''}>Default (from set)</option>`;
+    customNames.forEach(n=>{opts+=`<option value="${esc(n)}"${cur===n?' selected':''}>${esc(n)}</option>`;});
+    return opts;
+  };
+  const ciLib=S.customIcons.map((ci,i)=>`<div class="ie"><div class="r"><span style="display:inline-flex;width:24px;height:24px;align-items:center;justify-content:center;color:var(--eA)">${ci.svg}</span><span style="flex:1;font-size:12px;padding-left:6px">${esc(ci.name)}</span><button class="rb" onclick="S.customIcons.splice(${i},1);Object.keys(S.iconOverrides).forEach(k=>{if(S.iconOverrides[k]==='${esc(ci.name)}')delete S.iconOverrides[k]});save();stab('theme');rp()">\u00D7</button></div></div>`).join('');
+  const overrideRows=function(slots,label){
+    if(!customNames.length)return`<p style="font-size:10px;color:var(--eT3)">Upload custom icons above to assign them to specific slots</p>`;
+    return slots.map(s=>`<div style="display:flex;align-items:center;gap:8px;padding:4px 0"><span style="width:24px;text-align:center">${EM[s]||s}</span><span style="flex:1;font-size:11px;color:var(--eT2)">${s}</span><select class="es" style="flex:1;padding:5px 8px;font-size:10px" onchange="if(this.value)S.iconOverrides['${s}']=this.value;else delete S.iconOverrides['${s}'];save();rp()">${overrideOpts(s)}</select></div>`).join('');
+  };
+  h+=coll('ic','Icons',`<div class="egt">Custom Icon Library</div>${ciLib}<button class="eb2" onclick="uploadCustomIcon()">+ Upload SVG</button><div class="ediv"></div><div class="egt">UI Icons (nav, headers, buttons)</div><div class="er"><select class="es" onchange="S.uiIconSet=this.value;save();rp()"><option value="emoji"${S.uiIconSet==='emoji'?' selected':''}>Emoji</option><option value="lucide"${S.uiIconSet==='lucide'?' selected':''}>Lucide (SVG)</option><option value="minimal"${S.uiIconSet==='minimal'?' selected':''}>Minimal</option><option value="none"${S.uiIconSet==='none'?' selected':''}>None</option></select></div><div class="egt">Content Icons (amenities, safety)</div><div class="er"><select class="es" onchange="S.contentIconSet=this.value;save();rp()"><option value="emoji"${S.contentIconSet==='emoji'?' selected':''}>Emoji</option><option value="lucide"${S.contentIconSet==='lucide'?' selected':''}>Lucide (SVG)</option><option value="minimal"${S.contentIconSet==='minimal'?' selected':''}>Minimal</option><option value="none"${S.contentIconSet==='none'?' selected':''}>None</option></select></div>${customNames.length?`<div class="ediv"></div><div class="egt">Icon Overrides</div><div class="egt" style="margin-top:6px;font-size:8px;color:var(--eT3)">UI SLOTS</div>${overrideRows(uiSlots,'UI')}<div class="egt" style="margin-top:8px;font-size:8px;color:var(--eT3)">CONTENT SLOTS</div>${overrideRows(contentSlots,'Content')}`:''}`);
+
+  // SWATCHES
+  const sw=S.swatches.map((s,i)=>`<div class="sw-item" onclick="copySwatch('${s.hex}','${esc(s.name)}')"><div class="sw-circle" style="background:${s.hex}"></div><div class="sw-tip">${esc(s.name)}<br>${s.hex}</div><button class="sw-del" onclick="event.stopPropagation();rmSwatch(${i})">\u00D7</button></div>`).join('');
+  h+=coll('sw','Swatches',`<p style="font-size:10px;color:var(--eT3);line-height:1.4;margin-bottom:6px">Click to copy hex. Paste into color fields above.</p><div class="sw-grid">${sw}<div class="sw-add" onclick="addSwatchPrompt()" title="Add swatch">+</div></div>${S.swatches.length?`<button class="eb2" style="margin-top:8px;font-size:10px;border-color:rgba(232,69,69,.2);color:var(--eR)" onclick="if(confirm('Clear all?')){S.swatches=[];save();rndr()}">Clear All</button>`:''}`);
+
+  // LAYOUT
+  h+=coll('ly','Layout',`<div class="er"><label class="el">Border Radius</label><div class="slider-row"><input type="range" min="0" max="28" value="${S.borderRadius}" oninput="S.borderRadius=+this.value;this.nextElementSibling.textContent=this.value+'px';save();rp()"><span class="sv">${S.borderRadius}px</span></div></div>`);
+
+
+    return h;
+}
+
+function rContent(){
+  let h='';
+  // HOME SETTINGS
+  h+=coll('hp','Home Page',`<div class="egt">Hero</div><div class="er"><label class="el">Top Label</label><input class="ei" value="${esc(S.hero.label)}" onchange="S.hero.label=this.value;save();rp()"></div><div class="er"><label class="el">Title</label><input class="ei" value="${esc(S.hero.title)}" onchange="S.hero.title=this.value;save();rp()"></div><div class="er"><label class="el">Brand</label><input class="ei" value="${esc(S.hero.brand)}" onchange="S.hero.brand=this.value;save();rp()"></div><div class="ediv"></div><div class="egt">Primary CTA Button</div><div class="etr"><span class="tl">Show CTA on home</span><button class="etg${S.homeCTA.show?' on':''}" onclick="this.classList.toggle('on');S.homeCTA.show=this.classList.contains('on');save();rp()"></button></div><div class="er"><label class="el">Button Label</label><input class="ei" value="${esc(S.homeCTA.label)}" onchange="S.homeCTA.label=this.value;save();rp()"></div><div class="er"><label class="el">Phone Number</label><input class="ei" value="${esc(S.homeCTA.phone)}" onchange="S.homeCTA.phone=this.value;save();rp()"></div><div class="ediv"></div><div class="egt">Home Widgets</div><div class="etr"><span class="tl">Show schedule preview on home</span><button class="etg${S.showScheduleOnHome?' on':''}" onclick="this.classList.toggle('on');S.showScheduleOnHome=this.classList.contains('on');save();rp()"></button></div><div class="etr"><span class="tl">Show schedule in nav bar</span><button class="etg${S.showScheduleInNav?' on':''}" onclick="this.classList.toggle('on');S.showScheduleInNav=this.classList.contains('on');save();rp()"></button></div><div class="ediv"></div><div class="egt">Banner</div><div class="etr"><span class="tl">Show banner</span><button class="etg${S.showBanner?' on':''}" onclick="this.classList.toggle('on');S.showBanner=this.classList.contains('on');save();rp()"></button></div><div class="er"><label class="el">Banner Message</label><input class="ei" value="${esc(S.bannerText)}" onchange="S.bannerText=this.value;save();rp()"></div>`);
+
+  // REQUEST FORM
+  h+=coll('rf','Request Form',`<div class="etr"><span class="tl">Enable request form</span><button class="etg${S.requestForm.show?' on':''}" onclick="this.classList.toggle('on');S.requestForm.show=this.classList.contains('on');save();rp()"></button></div><div class="ediv"></div><div class="egt">Notifications</div><div class="etr"><span class="tl">SMS Notifications</span><button class="etg${S.notifySMS?' on':''}" onclick="this.classList.toggle('on');S.notifySMS=this.classList.contains('on');save()"></button></div><div class="er"><label class="el">SMS Alert Phone</label><input class="ei" value="${esc(S.notifyPhone)}" placeholder="e.g. +18185551234" onchange="S.notifyPhone=this.value;save()"></div><div class="etr"><span class="tl">Email Notifications</span><button class="etg${S.notifyEmailOn?' on':''}" onclick="this.classList.toggle('on');S.notifyEmailOn=this.classList.contains('on');save()"></button></div><div class="er"><label class="el">Email Alert</label><input class="ei" value="${esc(S.notifyEmail)}" placeholder="e.g. ops@company.com" onchange="S.notifyEmail=this.value;save()"></div><div class="ediv"></div><div class="egt">Request Types</div>${S.requestForm.types.map((t,i)=>`<div class="ie"><div class="r"><input value="${esc(t)}" onchange="S.requestForm.types[${i}]=this.value;save();rp()"><button class="rb" onclick="S.requestForm.types.splice(${i},1);save();rndr()">\u00D7</button></div></div>`).join('')}<button class="ab" onclick="S.requestForm.types.push('');save();rndr()">+ Add Type</button><div class="ediv"></div><div class="egt">House Options</div>${S.requestForm.houses.map((h2,i)=>`<div class="ie"><div class="r"><input value="${esc(h2)}" onchange="S.requestForm.houses[${i}]=this.value;save();rp()"><button class="rb" onclick="S.requestForm.houses.splice(${i},1);save();rndr()">\u00D7</button></div></div>`).join('')}<button class="ab" onclick="S.requestForm.houses.push('');save();rndr()">+ Add House</button>`);
+
+  // SECTIONS
+  h+=`<div class="ediv"></div><div class="egt" style="padding:0 0 4px">SECTIONS</div><p style="font-size:10px;color:var(--eT3);padding:0 0 8px">Each section becomes a page in the hub. Toggle nav and home card visibility per section.</p>`;
+  S.sections.forEach((sec,si)=>{
+    if(si>0) h+='<div class="sec-sep"></div>';
+    const bHTML=sec.blocks.map((b,bi)=>renderBlockEditor(si,bi,b)).join('');
+    h+='<div class="sec-wrap" data-sec="'+si+'" ondragover="secDragOver(event)" ondragenter="secDragEnter(event)" ondragleave="secDragLeave(event)" ondrop="secDrop(event,'+si+')" ondragend="secDragEnd(event)">';h+=coll('s'+si, '<span class="drag-handle" onmousedown="secGrab(this,'+si+')" onmouseup="secRelease(this)">'+'\u2630</span> '+(sec.name||'Untitled Section'),`<div class="er"><label class="el">Section Name</label><input class="ei" value="${esc(sec.name)}" onchange="S.sections[${si}].name=this.value;save();rndr()"></div><div class="er"><label class="el">Nav Label</label><input class="ei" value="${esc(sec.navLabel)}" onchange="S.sections[${si}].navLabel=this.value;save();rp()"></div><div class="er"><label class="el">Icon Key</label><input class="ei" value="${esc(sec.icon)}" onchange="S.sections[${si}].icon=this.value;save();rp()"></div><div class="etr"><span class="tl">Show in nav bar</span><button class="etg${sec.showInNav?' on':''}" onclick="this.classList.toggle('on');S.sections[${si}].showInNav=this.classList.contains('on');save();rp()"></button></div><div class="etr"><span class="tl">Show as home card</span><button class="etg${sec.showOnHome?' on':''}" onclick="this.classList.toggle('on');S.sections[${si}].showOnHome=this.classList.contains('on');save();rp()"></button></div><div class="er"><label class="el">Card Background <span style="font-weight:400;color:var(--eT3)">(blank = use global)</span></label><div class="ecr"><input type="color" class="eci" value="${sec.cardBg||S.colors.bgCard}" onchange="S.sections[${si}].cardBg=this.value;save();rp()"><input class="ehx" value="${sec.cardBg||''}" placeholder="Global" onchange="S.sections[${si}].cardBg=this.value;save();rp()"></div><button class="ab" style="margin-top:4px;font-size:9px" onclick="S.sections[${si}].cardBg='';save();rndr();rp()">Reset to Global</button></div><div class="ediv"></div><div class="egt">BLOCKS</div>${bHTML}<div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:6px"><button class="ab" style="flex:1" onclick="addBlock(${si},'bulletGroup')">+ Bullets</button><button class="ab" style="flex:1" onclick="addBlock(${si},'cardList')">+ Cards</button><button class="ab" style="flex:1" onclick="addBlock(${si},'contactList')">+ Contacts</button></div><div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px"><button class="ab" style="flex:1" onclick="addBlock(${si},'textBlock')">+ Text</button><button class="ab" style="flex:1" onclick="addBlock(${si},'callout')">+ Callout</button><button class="ab" style="flex:1" onclick="addBlock(${si},'wifiCard')">+ WiFi</button></div><div style="display:flex;gap:4px;flex-wrap:wrap;margin-top:4px"><button class="ab" style="flex:1" onclick="addBlock(${si},'emergencyCard')">+ Emergency</button><button class="ab" style="flex:1" onclick="addBlock(${si},'imageBlock')">+ Image</button><button class="ab" style="flex:1" onclick="addBlock(${si},'ctaButton')">+ CTA Button</button></div><div class="ediv"></div><button class="eb2" style="font-size:10px;border-color:rgba(232,69,69,.2);color:var(--eR);margin-top:4px" onclick="if(confirm('Delete this section?')){S.sections.splice(${si},1);save();rndr();rp();}">Delete Section</button>`);h+='</div>';
+  });
+  h+=`<button class="eb2" style="margin-top:8px" onclick="S.sections.push({id:'sec'+Date.now(),name:'New Section',navLabel:'New',icon:'info',showInNav:true,showOnHome:true,cardBg:'',blocks:[]});save();rndr();">+ Add Section</button>`;
+  return h;
+}
+
+function renderBlockEditor(si,bi,b){
+  const hdr=`<div style="display:flex;align-items:center;justify-content:space-between;padding:4px 0;margin-bottom:4px"><span style="font-size:10px;font-weight:600;color:var(--eA);letter-spacing:.06em;text-transform:uppercase">${b.type}</span><div style="display:flex;gap:4px">${bi>0?`<button class="rb" style="border-color:var(--eB2);color:var(--eT3)" onclick="S.sections[${si}].blocks.splice(${bi-1},0,S.sections[${si}].blocks.splice(${bi},1)[0]);save();rndr();rp()">\u2191</button>`:''}<button class="rb" onclick="S.sections[${si}].blocks.splice(${bi},1);save();rndr();rp()">\u00D7</button></div></div>`;
+  let body='';
+  if(b.type==='bulletGroup'){
+    body=`<div class="er"><label class="el">Sub-header</label><input class="ei" value="${esc(b.title)}" onchange="S.sections[${si}].blocks[${bi}].title=this.value;save();rp()"></div>${b.items.map((it,ii)=>`<div class="ie"><div class="r"><input value="${esc(it)}" onchange="S.sections[${si}].blocks[${bi}].items[${ii}]=this.value;save();rp()"><button class="rb" onclick="S.sections[${si}].blocks[${bi}].items.splice(${ii},1);save();rndr()">\u00D7</button></div></div>`).join('')}<button class="ab" onclick="S.sections[${si}].blocks[${bi}].items.push('');save();rndr()">+ Add Item</button>`;
+  } else if(b.type==='cardList'){
+    body=b.items.map((it,ii)=>`<div class="ie"><div class="r"><input value="${esc(it.icon)}" placeholder="Icon" onchange="S.sections[${si}].blocks[${bi}].items[${ii}].icon=this.value;save();rp()" style="flex:0.7"><input value="${esc(it.title)}" placeholder="Title" onchange="S.sections[${si}].blocks[${bi}].items[${ii}].title=this.value;save();rp()"><button class="rb" onclick="S.sections[${si}].blocks[${bi}].items.splice(${ii},1);save();rndr()">\u00D7</button></div><div class="r"><input value="${esc(it.desc)}" placeholder="Description" onchange="S.sections[${si}].blocks[${bi}].items[${ii}].desc=this.value;save();rp()"></div></div>`).join('')+`<button class="ab" onclick="S.sections[${si}].blocks[${bi}].items.push({icon:'',title:'',desc:''});save();rndr()">+ Add Card</button>`;
+  } else if(b.type==='contactList'){
+    body=`<div class="er"><label class="el">Group Title</label><input class="ei" value="${esc(b.title||'')}" onchange="S.sections[${si}].blocks[${bi}].title=this.value;save();rp()"></div>`+b.items.map((it,ii)=>`<div class="ie"><div class="r"><input value="${esc(it.label)}" placeholder="Name" onchange="S.sections[${si}].blocks[${bi}].items[${ii}].label=this.value;save();rp()"><button class="rb" onclick="S.sections[${si}].blocks[${bi}].items.splice(${ii},1);save();rndr()">\u00D7</button></div><div class="r"><input value="${esc(it.sub||'')}" placeholder="Subtitle" onchange="S.sections[${si}].blocks[${bi}].items[${ii}].sub=this.value;save();rp()"><input value="${esc(it.phone||'')}" placeholder="Phone" onchange="S.sections[${si}].blocks[${bi}].items[${ii}].phone=this.value;save();rp()"></div></div>`).join('')+`<button class="ab" onclick="S.sections[${si}].blocks[${bi}].items.push({label:'',sub:'',phone:''});save();rndr()">+ Add Contact</button>`;
+  } else if(b.type==='textBlock'){
+    body=`<div class="er"><label class="el">Heading</label><input class="ei" value="${esc(b.title||'')}" onchange="S.sections[${si}].blocks[${bi}].title=this.value;save();rp()"></div><div class="er"><label class="el">Body</label><textarea class="ei" onchange="S.sections[${si}].blocks[${bi}].body=this.value;save();rp()">${esc(b.body||'')}</textarea></div>`;
+  } else if(b.type==='callout'){
+    body=`<div class="er"><label class="el">Callout Text</label><textarea class="ei" onchange="S.sections[${si}].blocks[${bi}].body=this.value;save();rp()">${esc(b.body||'')}</textarea></div>`;
+  } else if(b.type==='emergencyCard'){
+    body=b.items.map((it,ii)=>`<div class="ie"><div class="r"><input value="${esc(it.label)}" placeholder="Label" onchange="S.sections[${si}].blocks[${bi}].items[${ii}].label=this.value;save();rp()"><input value="${esc(it.phone||'')}" placeholder="Phone" onchange="S.sections[${si}].blocks[${bi}].items[${ii}].phone=this.value;save();rp()" style="flex:0.7"><button class="rb" onclick="S.sections[${si}].blocks[${bi}].items.splice(${ii},1);save();rndr()">\u00D7</button></div><div class="r"><div class="etr" style="padding:2px 0"><span class="tl" style="font-size:10px">Red highlight</span><button class="etg${it.highlight?' on':''}" style="width:32px;height:18px" onclick="this.classList.toggle('on');S.sections[${si}].blocks[${bi}].items[${ii}].highlight=this.classList.contains('on');save();rp()"></button></div></div></div>`).join('')+`<button class="ab" onclick="S.sections[${si}].blocks[${bi}].items.push({label:'',phone:'',highlight:false});save();rndr()">+ Add</button>`;
+  } else if(b.type==='wifiCard'||b.type==='wifi'){
+    if(!b.entries)b.entries=[{house:'',network:'',password:''}];
+    if(b.showDetails===undefined)b.showDetails=false;
+    body=`<div class="etr"><span class="tl">Show network & password</span><button class="etg${b.showDetails?' on':''}" onclick="this.classList.toggle('on');S.sections[${si}].blocks[${bi}].showDetails=this.classList.contains('on');save();rp()"></button></div><div class="ediv"></div>`+b.entries.map((e,ei)=>`<div class="ie"><div class="r"><input value="${esc(e.house)}" placeholder="House name" onchange="S.sections[${si}].blocks[${bi}].entries[${ei}].house=this.value;save();rp()"><button class="rb" onclick="S.sections[${si}].blocks[${bi}].entries.splice(${ei},1);save();rndr()">\u00D7</button></div><div class="r"><input value="${esc(e.network)}" placeholder="Network" onchange="S.sections[${si}].blocks[${bi}].entries[${ei}].network=this.value;save();rp()"><input value="${esc(e.password)}" placeholder="Password" onchange="S.sections[${si}].blocks[${bi}].entries[${ei}].password=this.value;save();rp()"></div></div>`).join('')+`<button class="ab" onclick="S.sections[${si}].blocks[${bi}].entries.push({house:'',network:'',password:''});save();rndr()">+ Add House</button>`;
+} else if(b.type==='ctaButton'){
+    body=`<div class="er"><label class="el">Button Label</label><input class="ei" value="${esc(b.label)}" onchange="S.sections[${si}].blocks[${bi}].label=this.value;save();rp()"></div><div class="er"><label class="el">Phone Number</label><input class="ei" value="${esc(b.phone)}" onchange="S.sections[${si}].blocks[${bi}].phone=this.value;save();rp()"></div><div class="er"><label class="el">Icon Key</label><input class="ei" value="${esc(b.icon)}" onchange="S.sections[${si}].blocks[${bi}].icon=this.value;save();rp()"></div>`;
+  } else if(b.type==='ctaButton'&&b.label) return`<div class="gb" style="padding:12px 18px"><a href="tel:${esc(b.phone)}" class="qb pri" style="text-decoration:none${b.customBg?';background:'+b.customBg+';border-color:'+b.customBg:''}${b.customText?';color:'+b.customText:''}"><span class="ic">${ico(b.icon||'phone')}</span> ${esc(b.label)}</a></div>`;
+  if(b.type==='imageBlock'){
+    const imgPrev=b.imageData?`<img src="${b.imageData}" style="max-width:100%;max-height:120px;border-radius:6px;margin-bottom:6px">`:''
+    body=`${imgPrev}<button class="eb2" onclick="uploadBlockImage(${si},${bi})">Upload Image</button><div class="er" style="margin-top:6px"><label class="el">Caption (optional)</label><input class="ei" value="${esc(b.caption||'')}" onchange="S.sections[${si}].blocks[${bi}].caption=this.value;save();rp()"></div>`;
+  }
+  const colorOverride=`<div style="border-top:1px solid var(--eB2);margin-top:8px;padding-top:8px"><div style="display:flex;gap:8px;align-items:center"><span style="font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--eT3)">Colors</span><div class="ecr" style="flex:1"><input type="color" class="eci" style="width:24px;height:24px" value="${b.customBg||S.colors.bgCard}" onchange="S.sections[${si}].blocks[${bi}].customBg=this.value;save();rp()"><label style="font-size:9px;color:var(--eT3)">Bg</label></div><div class="ecr" style="flex:1"><input type="color" class="eci" style="width:24px;height:24px" value="${b.customText||S.colors.text}" onchange="S.sections[${si}].blocks[${bi}].customText=this.value;save();rp()"><label style="font-size:9px;color:var(--eT3)">Text</label></div><button class="rb" style="font-size:8px" onclick="delete S.sections[${si}].blocks[${bi}].customBg;delete S.sections[${si}].blocks[${bi}].customText;save();rndr();rp()">Reset</button></div></div>`;
+  return`<div style="background:var(--e3);border:1px solid var(--eB2);border-radius:8px;padding:8px;margin-bottom:6px">${hdr}${body}${(b.customBg||b.customText)?colorOverride:('<div style="margin-top:6px"><button class="ab" style="font-size:9px;padding:4px" onclick="S.sections['+si+'].blocks['+bi+'].customBg=S.colors.bgCard;save();rndr()">+ Custom Colors</button></div>')}</div>`;
+}
+
+function addBlock(si,type){
+  const templates={
+    bulletGroup:{type:'bulletGroup',title:'',items:['']},
+    cardList:{type:'cardList',items:[{icon:'',title:'',desc:''}]},
+    contactList:{type:'contactList',title:'',items:[{label:'',sub:'',phone:''}]},
+    textBlock:{type:'textBlock',title:'',body:''},
+    callout:{type:'callout',body:''},
+    emergencyCard:{type:'emergencyCard',items:[{label:'',phone:'',highlight:false}]},
+    wifiCard:{type:'wifiCard',entries:[{house:'',network:'',password:''}]},
+    imageBlock:{type:'imageBlock',imageData:'',caption:''},ctaButton:{type:'ctaButton',label:'',phone:'',icon:'phone'}
+  };
+  S.sections[si].blocks.push(JSON.parse(JSON.stringify(templates[type])));
+  save();rndr();
+}
+
+function mvSec(i,dir){const t=S.sections.splice(i,1)[0];S.sections.splice(i+dir,0,t);save();rndr();rp();}
+
+// Section drag and drop
+let secDragIdx=null;
+function secGrab(handle,i){
+  const wrap=handle.closest('.sec-wrap');
+  if(wrap){wrap.setAttribute('draggable','true');wrap.setAttribute('ondragstart','secDragStart(event,'+i+')');}
+}
+function secRelease(handle){
+  const wrap=handle.closest('.sec-wrap');
+  if(wrap){wrap.removeAttribute('draggable');wrap.removeAttribute('ondragstart');}
+}
+function secDragStart(e,i){
+  secDragIdx=i;
+  const wrap=e.target.closest('.sec-wrap');
+  if(wrap)wrap.classList.add('sched-drag');
+  e.dataTransfer.effectAllowed='move';
+  e.dataTransfer.setData('text/plain','sec-'+i);
+}
+function secDragOver(e){
+  e.preventDefault();
+  e.dataTransfer.dropEffect='move';
+  const target=e.target.closest('.sec-wrap[draggable]');
+  if(!target)return;
+  document.querySelectorAll('.sec-wrap.sched-over,.sec-wrap.sched-over-below').forEach(el=>{el.classList.remove('sched-over','sched-over-below');});
+  const rect=target.getBoundingClientRect();
+  const mid=rect.top+rect.height/2;
+  if(e.clientY<mid){target.classList.add('sched-over');}
+  else{target.classList.add('sched-over-below');}
+}
+function secDragEnter(e){e.preventDefault();}
+function secDragLeave(e){}
+function secDragEnd(e){document.querySelectorAll('.sec-wrap.sched-drag,.sec-wrap.sched-over,.sec-wrap.sched-over-below').forEach(el=>{el.classList.remove('sched-drag','sched-over','sched-over-below');el.removeAttribute('draggable');el.removeAttribute('ondragstart');});}
+function secDrop(e,dropIdx){
+  e.preventDefault();
+  e.stopPropagation();
+  const target=e.target.closest('.sec-wrap[draggable]');
+  const isBelow=target&&target.classList.contains('sched-over-below');
+  document.querySelectorAll('.sec-wrap.sched-over,.sec-wrap.sched-over-below').forEach(el=>el.classList.remove('sched-over','sched-over-below'));
+  if(secDragIdx===null||secDragIdx===dropIdx)return;
+  const dragged=S.sections.splice(secDragIdx,1)[0];
+  let insertAt=dropIdx;
+  if(secDragIdx<dropIdx)insertAt--;
+  if(isBelow)insertAt++;
+  S.sections.splice(insertAt,0,dragged);
+  secDragIdx=null;
+  save();rndr();rp();
+}
+function uploadBlockImage(si,bi){
+  const input=document.createElement('input');input.type='file';input.accept='image/*';
+  input.onchange=function(e){
+    const file=e.target.files[0];if(!file)return;
+    const reader=new FileReader();
+    reader.onload=function(ev){S.sections[si].blocks[bi].imageData=ev.target.result;save();rndr();rp();};
+    reader.readAsDataURL(file);
+  };input.click();
+}
+
+function rSched(){
+  sortDays();
+  const tabs=S.schedule.map((d,i)=>`<button class="dst-btn${i===S._sd?' active':''}" style="flex:none;padding:6px 10px;font-size:10px;font-weight:600;text-align:center;background:${i===S._sd?'var(--eAd)':'var(--e3)'};border:1px solid ${i===S._sd?'var(--eA)':'var(--eB2)'};border-radius:6px;color:${i===S._sd?'var(--eA)':'var(--eT3)'};cursor:pointer;font-family:inherit" onclick="S._sd=${i};rndr()">${d.short}</button>`).join('');
+  const d=S.schedule[S._sd];
+  const items=d.items.map((it,i)=>`<div class="ie" draggable="true" data-idx="${i}" ondragstart="schDragStart(event,${i})" ondragover="schDragOver(event)" ondragenter="schDragEnter(event)" ondragleave="schDragLeave(event)" ondrop="schDrop(event,${i})" ondragend="schDragEnd(event)"><div class="r"><span class="drag-handle" title="Drag to reorder">\u2630</span><input class="tm" value="${esc(it.time)}" placeholder="Start" onchange="S.schedule[S._sd].items[${i}].time=this.value;save();rp()"><span style="color:var(--eT3);font-size:9px;padding:3px">to</span><input class="tm" value="${esc(it.end||'')}" placeholder="End" onchange="S.schedule[S._sd].items[${i}].end=this.value;save();rp()"><button class="rb" title="Copy to..." onclick="schCopyItem(${i})">&#x2398;</button><button class="rb" onclick="S.schedule[S._sd].items.splice(${i},1);save();rndr();rp()">\u00D7</button></div><div class="r"><input value="${esc(it.title)}" placeholder="Event" onchange="S.schedule[S._sd].items[${i}].title=this.value;save();rp()"><input value="${esc(it.sub||'')}" placeholder="Location" onchange="S.schedule[S._sd].items[${i}].sub=this.value;save();rp()"></div></div>`).join('');
+  
+  // Day copy dropdown
+  const otherDays=S.schedule.filter((_,i)=>i!==S._sd).map(d2=>`<option value="${d2.short}">${d2.short}</option>`).join('');
+  
+  return`<div class="egt">Schedule</div><div style="display:flex;flex-wrap:wrap;gap:3px;margin-bottom:10px">${tabs}</div><div class="er"><label class="el">Date</label><input type="date" class="ei" value="${d.date||''}" onchange="setDayDate(this.value)" style="font-family:'JetBrains Mono',monospace;font-size:12px"></div><div class="er"><label class="el">Day Label <span style="font-weight:400;color:var(--eT3)">(auto-filled from date, editable)</span></label><input class="ei" value="${esc(d.label)}" onchange="S.schedule[S._sd].label=this.value;save();rp()"></div><div class="er"><label class="el">Tab Label</label><input class="ei" value="${esc(d.short)}" onchange="S.schedule[S._sd].short=this.value;save();rndr()"></div><div class="ediv"></div><div style="display:flex;gap:4px;margin-bottom:10px"><button class="eb2" style="flex:1;font-size:10px" onclick="schCopyDay()">Copy Day To...</button><button class="eb2" style="flex:1;font-size:10px" onclick="schDupeDay()">Duplicate Day</button></div><div class="ediv"></div><p style="font-size:10px;color:var(--eT3);margin-bottom:6px">Drag items to reorder. Click \u2398 to copy an item to another day.</p>${items}<button class="ab" onclick="S.schedule[S._sd].items.push({time:'',end:'',title:'',sub:''});save();rndr()">+ Add Event</button><div class="ediv"></div><button class="eb2" onclick="addDay()">+ Add Day</button>${S.schedule.length>1?`<button class="eb2" style="border-color:rgba(232,69,69,.3);color:var(--eR)" onclick="if(confirm('Delete this day?')){S.schedule.splice(S._sd,1);S._sd=0;save();rndr();rp()}">Delete Day</button>`:''}`;
+}
+
+// Schedule drag and drop
+let schDragIdx=null;
+function schDragStart(e,i){
+  schDragIdx=i;
+  e.target.closest('.ie').classList.add('sched-drag');
+  e.dataTransfer.effectAllowed='move';
+  e.dataTransfer.setData('text/plain',i);
+}
+function schDragOver(e){
+  e.preventDefault();
+  e.dataTransfer.dropEffect='move';
+  // Find the closest item and determine if cursor is in top or bottom half
+  const target=e.target.closest('.ie[draggable]');
+  if(!target)return;
+  document.querySelectorAll('.sched-over,.sched-over-below').forEach(el=>{el.classList.remove('sched-over','sched-over-below');});
+  const rect=target.getBoundingClientRect();
+  const mid=rect.top+rect.height/2;
+  if(e.clientY<mid){target.classList.add('sched-over');}
+  else{target.classList.add('sched-over-below');}
+}
+function schDragEnter(e){e.preventDefault();}
+function schDragLeave(e){}
+function schDragEnd(e){document.querySelectorAll('.sched-drag,.sched-over,.sched-over-below').forEach(el=>{el.classList.remove('sched-drag','sched-over','sched-over-below');});}
+function schDrop(e,dropIdx){
+  e.preventDefault();
+  const target=e.target.closest('.ie[draggable]');
+  const isBelow=target&&target.classList.contains('sched-over-below');
+  document.querySelectorAll('.sched-over,.sched-over-below').forEach(el=>el.classList.remove('sched-over','sched-over-below'));
+  if(schDragIdx===null||schDragIdx===dropIdx)return;
+  const items=S.schedule[S._sd].items;
+  const dragged=items.splice(schDragIdx,1)[0];
+  let insertAt=dropIdx;
+  if(schDragIdx<dropIdx)insertAt--;
+  if(isBelow)insertAt++;
+  items.splice(insertAt,0,dragged);
+  schDragIdx=null;
+  save();rndr();rp();
+}
+
+// Copy single item to another day
+function schCopyItem(idx){
+  const item=S.schedule[S._sd].items[idx];
+  const dayNames=S.schedule.map((d,i)=>i===S._sd?null:d.short).filter(Boolean);
+  if(!dayNames.length){toast('No other days');return;}
+  const pick=prompt('Copy "'+item.title+'" to which day?\\n\\n'+S.schedule.map((d,i)=>i===S._sd?'':'  '+d.short).filter(Boolean).join('\\n'));
+  if(!pick)return;
+  const target=S.schedule.find((d,i)=>i!==S._sd&&d.short.toLowerCase()===pick.toLowerCase());
+  if(!target){toast('Day not found');return;}
+  target.items.push(JSON.parse(JSON.stringify(item)));
+  save();rp();toast('Copied to '+target.short);
+}
+
+// Copy all items from current day to another day
+function schCopyDay(){
+  const dayNames=S.schedule.filter((_,i)=>i!==S._sd).map(d=>d.short);
+  if(!dayNames.length){toast('No other days');return;}
+  const pick=prompt('Copy all events to which day?\\n\\n'+dayNames.join('\\n'));
+  if(!pick)return;
+  const target=S.schedule.find((d,i)=>i!==S._sd&&d.short.toLowerCase()===pick.toLowerCase());
+  if(!target){toast('Day not found');return;}
+  const copies=JSON.parse(JSON.stringify(S.schedule[S._sd].items));
+  target.items.push(...copies);
+  save();rp();toast(copies.length+' events copied to '+target.short);
+}
+
+// Duplicate entire day as a new day
+function schDupeDay(){
+  const src=S.schedule[S._sd];
+  const newDate=prompt('Date for the copy (YYYY-MM-DD):','2026-04-');
+  if(!newDate)return;
+  const labels=d2l(newDate);
+  const nd={
+    date:newDate,
+    label:labels?labels.label:src.label+' (Copy)',
+    short:labels?labels.short:'COPY',
+    items:JSON.parse(JSON.stringify(src.items))
+  };
+  S.schedule.push(nd);
+  sortDays();
+  S._sd=S.schedule.findIndex(d=>d.date===newDate);
+  save();rndr();rp();
+  toast('Day duplicated');
+}
+
+function rExport(){
+  return`<div class="egt">Download</div><button class="eb2 pri" onclick="xHTML()">Download HTML</button><button class="eb2" onclick="cHTML()">Copy HTML</button><div class="ediv"></div><div class="egt">Backup</div><p style="font-size:10px;color:var(--eT3);line-height:1.6;margin-bottom:8px">Auto-saves to browser. Export JSON for backup.</p><button class="eb2" onclick="xJSON()">Export JSON</button><button class="eb2" onclick="document.getElementById('ji').click()">Import Full Config</button><button class="eb2" onclick="document.getElementById('jit').click()">Import Theme Only</button><input type="file" id="ji" accept=".json" style="display:none" onchange="iJSON(event)"><input type="file" id="jit" accept=".json" style="display:none" onchange="iTheme(event)"><div class="ediv"></div><button class="eb2" style="border-color:rgba(232,69,69,.3);color:var(--eR)" onclick="if(confirm('Reset?')){localStorage.removeItem(SK);location.reload()}">Reset to Defaults</button>`;
+}
+
+function hlu(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=function(ev){S.logoData=ev.target.result;S.useLogo=true;save();stab('brand');rp();};r.readAsDataURL(f);}
+function copySwatch(hex,name){navigator.clipboard.writeText(hex).then(()=>toast(name+' '+hex+' copied!')).catch(()=>toast(hex))}
+function rmSwatch(i){S.swatches.splice(i,1);save();rndr()}
+function uploadCustomIcon(){
+  const input=document.createElement('input');input.type='file';input.accept='.svg';
+  input.onchange=function(e){
+    const file=e.target.files[0];if(!file)return;
+    const name=prompt('Icon name (e.g. GUESS Star):');if(!name)return;
+    const reader=new FileReader();
+    reader.onload=function(ev){
+      let svg=ev.target.result;
+      // Clean up SVG - remove XML declaration, extract just the SVG tag
+      svg=svg.replace(/<\?xml[^?]*\?>/g,'').trim();
+      // Ensure it uses currentColor
+      S.customIcons.push({name:name,svg:svg});
+      save();stab('theme');rp();
+      toast(name+' added!');
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+function addSwatchPrompt(){const name=prompt('Swatch name (e.g. PMS 300 C):');if(!name)return;const hex=prompt('Hex code (e.g. #FF5500):');if(!hex||!/^#[0-9A-Fa-f]{6}$/.test(hex)){toast('Invalid hex code');return}S.swatches.push({name:name,hex:hex});save();rndr();toast('Swatch added!')}
+function sdev(t,b){document.querySelectorAll('.db').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.getElementById('pf').className='pf'+(t!=='phone'?' '+t:'');}
+
+
+// ===== GENERATE OUTPUT HTML =====
+function renderBlock(b,C){
+  const bStyle=[];
+  if(b.customBg)bStyle.push('background:'+b.customBg);
+  if(b.customText)bStyle.push('color:'+b.customText);
+  const bStyleAttr=bStyle.length?' style="'+bStyle.join(';')+'"':'';
+  const ar2=h2r(C.accent);
+  if(b.type==='wifi'||b.type==='wifiCard'){
+    if(b.entries&&b.entries.length>1){
+      const wid='wf'+Math.random().toString(36).substr(2,5);
+      const sd=b.showDetails;
+      const wbg=b.customBg||'var(--bgc)';
+      const wtx=b.customText||'var(--t)';
+      const wbtn=b.customBg||'var(--bpill)';
+      const wbtx=b.customText||'var(--bpillt)';
+      return`<div class="gb"${bStyleAttr}><h3>Wi-Fi</h3><p style="font-size:12px;color:var(--td);margin-bottom:6px">Select your house</p><select id="${wid}" onchange="var e=this.options[this.selectedIndex];var d=document.getElementById('${wid}-info');if(e.value){d.style.display='block';d.querySelector('.wp').textContent=${sd}?e.dataset.net+' / '+e.dataset.pw:e.dataset.net;d.dataset.pw=e.dataset.pw}else{d.style.display='none'}" style="width:100%;background:${wbg};border:1px solid var(--b);border-radius:var(--rs);padding:12px 14px;color:${wtx};font-family:var(--fb);font-size:15px;-webkit-appearance:none;outline:none;margin-bottom:8px"><option value="">Select your house...</option>${b.entries.map(e=>`<option value="${esc(e.house)}" data-net="${esc(e.network)}" data-pw="${esc(e.password)}">${esc(e.house)}</option>`).join('')}</select><div id="${wid}-info" style="display:none"><div class="wc" onclick="ct(this.parentElement.dataset.pw)" style="cursor:pointer;background:${wbtn};padding:10px 16px;border-radius:var(--rs)"><span class="wp" style="color:${wbtx};font-weight:600"></span></div><p style="font-size:11px;color:var(--td);margin-top:6px">Tap to copy password</p></div></div>`;
+    }
+    if(b.entries&&b.entries.length===1){
+      const sd=b.showDetails;
+      const wbtn=b.customBg||'var(--bpill)';
+      const wbtx=b.customText||'var(--bpillt)';
+      return`<div class="gb"${bStyleAttr}><h3>Wi-Fi</h3><p style="font-size:12px;color:var(--td);margin-bottom:6px">Tap to copy password</p><div class="wc" onclick="ct('${esc(b.entries[0].password)}')" style="background:${wbtn};padding:10px 16px;border-radius:var(--rs);cursor:pointer">${sd?`<span style="color:${wbtx};font-weight:600">${esc(b.entries[0].network)} / ${esc(b.entries[0].password)}</span>`:`<span style="color:${wbtx};font-weight:600">${esc(b.entries[0].network)}</span>`}</div></div>`;
+    }
+    return'';
+  }
+  if(b.type==='bulletGroup') return`<div class="gb"${bStyleAttr}><h3>${esc(b.title)}</h3>${b.items.filter(it=>it&&it.trim()).map(it=>`<div class="gr"><span class="d"></span>${esc(it)}</div>`).join('')}</div>`;
+  if(b.type==='cardList') return b.items.map(it=>`<div class="ar"${bStyleAttr}><span class="ai">${ico(it.icon,true)}</span><div class="af"><h3>${esc(it.title)}</h3><p>${esc(it.desc)}</p></div></div>`).join('');
+  if(b.type==='contactList'){
+    let out=b.title?`<div class="gb"${bStyleAttr}><h3>${esc(b.title)}</h3></div>`:'';
+    out+=b.items.map(it=>`<div class="cr"${bStyleAttr}><div class="lb">${esc(it.label)}${it.sub?`<small>${esc(it.sub)}</small>`:''}</div>${it.phone?`<a href="tel:${esc(it.phone)}" class="cb2">${ico('phone')} Call</a>`:''}</div>`).join('');
+    return out;
+  }
+  if(b.type==='textBlock') return`<div class="tb"${bStyleAttr}><h3>${esc(b.title)}</h3><div class="td2">${esc(b.body)}</div></div>`;
+  if(b.type==='callout') return`<div class="tb" style="background:${b.customBg||'var(--ag)'}${b.customText?';color:'+b.customText:''}"><h3 style="color:${b.customText||'var(--a)'}">Note</h3><div class="td2">${esc(b.body)}</div></div>`;
+  if(b.type==='emergencyCard') return`<div class="cd ec"><div class="et"><span>${ico('siren')}</span><h3>Emergency</h3></div>${b.items.map(it=>`<div class="er2${it.highlight?' e911':''}"><p>${esc(it.label)}</p>${it.phone?`<a href="tel:${esc(it.phone)}">${ico('phone')} ${esc(it.phone)}</a>`:''}</div>`).join('')}</div>`;
+  if(b.type==='ctaButton'&&b.label) return`<div class="gb" style="padding:12px 18px"><a href="tel:${esc(b.phone)}" class="qb pri" style="text-decoration:none${b.customBg?';background:'+b.customBg+';border-color:'+b.customBg:''}${b.customText?';color:'+b.customText:''}"><span class="ic">${ico(b.icon||'phone')}</span> ${esc(b.label)}</a></div>`;
+  if(b.type==='imageBlock'&&b.imageData) return`<div class="gb">${b.imageData?`<img src="${b.imageData}" style="width:100%;border-radius:var(--rs)">`:''}<p style="font-size:12px;color:var(--td);margin-top:6px">${esc(b.caption||'')}</p></div>`;
+  return'';
+}
+
+function genHTML(){
+  const C=S.colors,ar=h2r(C.accent);
+  const fonts=new Set(['Outfit','JetBrains Mono']);if(S.fontHeading!=='Outfit')fonts.add(S.fontHeading);if(S.fontBody!=='Outfit')fonts.add(S.fontBody);if(S.fontTime!=='JetBrains Mono'&&S.fontTime!=='Outfit')fonts.add(S.fontTime);
+  const fu='https://fonts.googleapis.com/css2?family='+Array.from(fonts).map(f=>f.replace(/ /g,'+')+':wght@300;400;500;600;700;800').join('&family=')+'&display=swap';
+  const heroH=S.useLogo&&S.logoData?`<div class="hero"><img src="${S.logoData}" style="max-height:${S.logoHeight}px;margin:0 auto 16px;display:block;object-fit:contain"><h1>${esc(S.hero.title)}<span>${esc(S.hero.brand)}</span></h1></div>`:`<div class="hero"><div class="hl">${esc(S.hero.label)}</div><h1>${esc(S.hero.title)}<span>${esc(S.hero.brand)}</span></h1></div>`;
+  const ss=S.schedule.map(d=>({...d,items:ssort(d.items)}));
+  const navSecs=S.sections.filter(s=>s.showInNav);
+  const homeSecs=S.sections.filter(s=>s.showOnHome);
+
+  // Build section pages
+  const secPages=S.sections.map(sec=>{
+    const cbg=sec.cardBg?' style="background:'+sec.cardBg+'"':'';
+    let secHtml='';let cardBuf=[];
+    const flush=()=>{if(cardBuf.length){secHtml+='<div class="cd"'+cbg+'>'+cardBuf.join('')+'</div>';cardBuf=[];}};
+    sec.blocks.forEach(b=>{
+      if(b.type==='ctaButton'){
+        flush();
+        if(b.label)secHtml+='<div style="padding:8px 0"><a href="tel:'+esc(b.phone)+'" class="qb pri" style="text-decoration:none;border-radius:var(--r)'+(b.customBg?';background:'+b.customBg+';border-color:'+b.customBg:'')+(b.customText?';color:'+b.customText:'')+'">'+'<span class="ic">'+ico(b.icon||'phone')+'</span> '+esc(b.label)+'</a></div>';
+      } else if(b.type==='emergencyCard'){
+        flush();
+        secHtml+=renderBlock(b,C);
+      } else {
+        cardBuf.push(renderBlock(b,C));
+      }
+    });
+    flush();
+    return`<div class="ps" id="p-${sec.id}"><div class="sec" style="padding-top:20px"><div class="sh"><span class="ic">${ico(sec.icon)}</span><h2>${esc(sec.name)}</h2></div>${secHtml}</div></div>`;
+  }).join('');
+
+  // Home cards
+  const homeCards=homeSecs.map(s=>`<div class="qb" onclick="sp('${s.id}')"><span class="ic">${ico(s.icon)}</span> ${esc(s.navLabel)}</div>`).join('');
+
+  // Nav items
+  const navItems=`<button class="nv ac" onclick="sp('home')" data-p="home">${nico('home')}Home</button>`+(S.showScheduleInNav?`<button class="nv" onclick="sp('schedule')" data-p="schedule">${nico('calendar')}Schedule</button>`:'')+navSecs.map(s=>`<button class="nv" onclick="sp('${s.id}')" data-p="${s.id}">${nico(s.icon)}${esc(s.navLabel)}</button>`).join('')+(S.requestForm.show?`<button class="nv" onclick="orf()" data-p="request">${nico('hand')}Request</button>`:'');
+
+  return`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><title>The Compound</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="${fu}" rel="stylesheet"><style>*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}:root{--bg:${C.bg};--bgc:${C.bgCard};--t:${C.text};--td:${C.textDim};--tm:${C.textMid};--a:${C.accent};--ad:rgba(${ar},.12);--ag:rgba(${ar},.06);--b:${C.border};--bnbg:${C.bannerBg};--bnt:${C.bannerText};--bp:${C.btnPrimaryBg};--bpt:${C.btnPrimaryText};--bs:${C.btnSecondaryBg};--bsb:${C.btnSecondaryBorder};--st2:${C.scheduleTime};--na:${C.navActive};--ni2:${C.navInactive};--em:${C.emergency};--bpill:${C.btnPillBg};--bpillt:${C.btnPillText};--hdg:${C.headings};--hdgi:${C.headingIcons};--ftx:${C.formText};--fbg:${C.formBg};--tbg:${C.toastBg};--ttx:${C.toastText};--r:${S.borderRadius}px;--rs:${Math.max(4,S.borderRadius-4)}px;--sb:env(safe-area-inset-bottom,0px);--fh:'${S.fontHeading}',sans-serif;--fb:'${S.fontBody}',sans-serif;--ft:'${S.fontTime}',monospace}html{background:var(--bg);color:var(--t);font-family:var(--fb);-webkit-font-smoothing:antialiased;scroll-behavior:smooth;overflow-x:hidden}body{min-height:100dvh;padding-bottom:calc(88px + var(--sb))}h1,h2,h3{font-family:var(--fh)}.li svg,.nli svg{width:1em;height:1em;display:inline-block;vertical-align:-.125em;stroke:currentColor;stroke-width:2;fill:none}.nli svg{width:22px;height:22px}.ci svg{width:1em;height:1em;display:inline-block;vertical-align:-.125em;stroke:currentColor;stroke-width:2;fill:none}.nci svg{width:22px;height:22px;stroke:currentColor;stroke-width:2;fill:none}.bn{position:sticky;top:0;z-index:100;background:var(--bnbg);border-bottom:1px solid var(--b);padding:10px 20px;display:${S.showBanner?'flex':'none'};align-items:center;gap:10px;backdrop-filter:blur(20px)}.ld{width:8px;height:8px;background:var(--bnt);border-radius:50%;animation:p 2s ease-in-out infinite}@keyframes p{0%,100%{opacity:1}50%{opacity:.5}}.bn p{font-size:13px;font-weight:500;color:var(--bnt)}.hero{padding:44px 24px 28px;text-align:center}.hl{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--a);background:var(--ad);padding:6px 14px;border-radius:100px;margin-bottom:18px}.hero h1{font-size:32px;font-weight:800;line-height:1.1;letter-spacing:-.02em}.hero h1 span{display:block;font-weight:300;font-size:20px;color:var(--tm);letter-spacing:.08em;text-transform:uppercase;margin-top:4px}.hs{font-size:14px;color:var(--td);margin-top:14px}.hs a{color:var(--a);text-decoration:none;font-weight:500}.qa{padding:0 16px 24px;display:grid;grid-template-columns:1fr 1fr;gap:10px}.qb{display:flex;align-items:center;gap:10px;background:var(--bs);border:1px solid var(--bsb);border-radius:var(--rs);padding:15px 13px;color:var(--t);text-decoration:none;font-size:14px;font-weight:500;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform .1s}.qb:active{transform:scale(.97)}.qb .ic{font-size:20px;flex-shrink:0}.qb.pri{grid-column:1/-1;background:var(--bp);border-color:var(--bp);color:var(--bpt);font-weight:600;justify-content:center;font-size:15px;padding:17px}.sec{padding:0 16px;margin-bottom:24px}.sh{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding:0 4px}.sh .ic{font-size:22px;color:var(--hdgi)}.sh h2{font-size:18px;font-weight:700;color:var(--hdg)}.cd{background:var(--bgc);border:1px solid var(--b);border-radius:var(--r);overflow:hidden}.cd+.cd{margin-top:10px}.sd{padding:14px 18px 4px;font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--td)}.si{display:flex;align-items:flex-start;gap:14px;padding:11px 18px}.si+.si{border-top:1px solid var(--b)}.st{font-family:var(--ft);font-size:13px;font-weight:500;color:var(--st2);min-width:72px}.st small{display:block;font-size:10px;color:var(--td);font-weight:400;margin-top:1px}.sl{font-size:15px;font-weight:500;line-height:1.3}.sl small{display:block;font-size:12px;font-weight:400;color:var(--td);margin-top:2px}.gb{padding:15px 18px}.gb+.gb{border-top:1px solid var(--b)}.gb h3{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--td);margin-bottom:7px}.wc{display:inline-flex;align-items:center;gap:8px;background:var(--bpill);padding:8px 14px;border-radius:var(--rs);margin-top:5px;cursor:pointer}.wc span{font-family:var(--ft);font-size:14px;font-weight:500;color:var(--bpillt)}.gr{display:flex;align-items:center;gap:8px;font-size:15px;color:var(--tm);line-height:1.4}.gr+.gr{margin-top:5px}.gr .d{width:5px;height:5px;background:var(--td);border-radius:50%;flex-shrink:0}.ar{padding:15px 18px;display:flex;align-items:flex-start;gap:14px}.ar+.ar{border-top:1px solid var(--b)}.ai{font-size:24px;flex-shrink:0;width:36px;text-align:center}.af h3{font-size:15px;font-weight:600;margin-bottom:3px}.af p{font-size:13px;color:var(--td);line-height:1.5}.tb{padding:17px}.tb+.tb{border-top:1px solid var(--b)}.tb h3{font-size:15px;font-weight:600;margin-bottom:7px}.td2{font-size:14px;color:var(--tm);line-height:1.6}.td2 strong{color:var(--t);font-weight:500}.cr{display:flex;align-items:center;justify-content:space-between;padding:15px 18px}.cr+.cr{border-top:1px solid var(--b)}.cr .lb{font-size:14px;font-weight:500}.cr .lb small{display:block;font-size:12px;font-weight:400;color:var(--td);margin-top:2px}.cb2{display:flex;align-items:center;gap:6px;background:var(--bpill);color:var(--bpillt);text-decoration:none;font-size:13px;font-weight:600;padding:8px 14px;border-radius:100px}.ec{border-color:rgba(${h2r(C.emergency)},.25)}.et{padding:15px 18px;display:flex;align-items:center;gap:12px}.et h3{font-size:15px;font-weight:600;color:var(--em)}.er2{padding:13px 18px;border-top:1px solid var(--b)}.er2 p{font-size:13px;color:var(--td);margin-bottom:5px}.er2 a{font-size:18px;font-weight:700;color:var(--t);text-decoration:none;font-family:var(--ft)}.e911 a{color:var(--em);font-size:22px}.sn{display:flex;align-items:flex-start;gap:10px;padding:13px 18px;font-size:14px;color:var(--tm);line-height:1.5}.sn+.sn{border-top:1px solid var(--b)}.nav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(${h2r(C.bg)},.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--b);padding:7px 8px calc(7px + var(--sb));display:flex;justify-content:space-around}.nv{display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 10px;color:var(--ni2);font-size:10px;font-weight:500;cursor:pointer;border:none;background:none;font-family:var(--fb)}.ni{font-size:22px}.nv.ac{color:var(--na)}.mo{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);display:none;align-items:flex-end;justify-content:center;opacity:0;transition:opacity .25s}.mo.sh2{display:flex;opacity:1}.ms{width:100%;max-width:500px;max-height:85dvh;background:var(--bgc);border-radius:20px 20px 0 0;padding:0 0 calc(20px + var(--sb));overflow-y:auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1)}.mo.sh2 .ms{transform:translateY(0)}.mh3{display:flex;justify-content:center;padding:12px}.mh3 div{width:36px;height:4px;background:var(--b);border-radius:2px}.mhd{padding:4px 20px 14px;text-align:center}.mhd h2{font-size:20px;font-weight:700}.mhd p{font-size:13px;color:var(--td);margin-top:3px}.fg{padding:0 20px;margin-bottom:14px}.fg label{display:block;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--td);margin-bottom:7px}.fg select,.fg input,.fg textarea{width:100%;background:var(--fbg);border:1px solid var(--b);border-radius:var(--rs);padding:13px 15px;color:var(--ftx);}.fg input::placeholder,.fg textarea::placeholder{color:var(--td);opacity:0.7}.fg select option{color:var(--ftx);background:var(--fbg)font-family:var(--fb);font-size:15px;outline:none;-webkit-appearance:none}.fg textarea{min-height:90px;resize:vertical}.fs{margin:6px 20px 0;width:calc(100% - 40px);background:var(--bp);color:var(--bpt);border:none;border-radius:var(--rs);padding:15px;font-family:var(--fb);font-size:15px;font-weight:600;cursor:pointer}.toast{position:fixed;top:55px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--tbg);border:1px solid var(--ttx);border-radius:var(--rs);padding:11px 18px;font-size:14px;font-weight:500;color:var(--ttx);z-index:600;opacity:0;pointer-events:none;transition:all .3s;white-space:nowrap}.toast.sh2{opacity:1;transform:translateX(-50%) translateY(0)}.ps{display:none}.ps.ac{display:block}.dv{height:1px;background:var(--b);margin:20px 20px}.dtw{position:relative;margin-bottom:14px}.dtw::after{content:'';position:absolute;top:0;right:0;width:32px;height:100%;background:linear-gradient(to right,transparent,var(--bg));pointer-events:none;z-index:1}.dts{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-right:32px}.dts::-webkit-scrollbar{display:none}::-webkit-scrollbar{width:0}</style></head><body><div class="bn"><div class="ld"></div><p>${esc(S.bannerText)}</p></div><div class="toast" id="toast"></div><div class="ps ac" id="p-home">${heroH}<div class="qa">${S.homeCTA.show?`<a href="tel:${esc(S.homeCTA.phone)}" class="qb pri"><span class="ic">${ico(S.homeCTA.icon||'phone')}</span> ${esc(S.homeCTA.label)}</a>`:''}${homeCards}</div>${S.showScheduleOnHome&&ss.length?`<div class="sec"><div class="sh"><span class="ic">${ico('calendar')}</span><h2>Today</h2></div><div class="cd"><div class="sd">${esc(ss[0].label)}</div>${ss[0].items.slice(0,5).map(i=>`<div class="si"><span class="st">${esc(i.time)}${i.end?`<small>to ${esc(i.end)}</small>`:''}</span><span class="sl">${esc(i.title)}${i.sub?`<small>${esc(i.sub)}</small>`:''}</span></div>`).join('')}</div></div>`:''}</div>${secPages}<div class="ps" id="p-schedule"><div class="sec" style="padding-top:20px"><div class="sh"><span class="ic">${ico('calendar')}</span><h2>Schedule</h2></div><div class="dtw"><div class="dts" id="dt">${ss.map((d,i)=>`<button class="dtb" onclick="sd2(this,${i})" style="background:${i===0?'var(--bp)':'var(--bs)'};color:${i===0?'var(--bpt)':'var(--tm)'};border:1px solid ${i===0?'var(--bp)':'var(--bsb)'};border-radius:100px;padding:7px 14px;font-family:var(--fb);font-size:13px;font-weight:${i===0?600:500};cursor:pointer;white-space:nowrap;flex-shrink:0">${esc(d.short)}</button>`).join('')}</div></div><div class="cd" id="fsc"></div></div></div>${S.requestForm.show?`<div class="mo" id="rm" onclick="cm()"><div class="ms" onclick="event.stopPropagation()"><div class="mh3"><div></div></div><div class="mhd"><h2>Request</h2><p>We'll respond ASAP</p></div><div class="fg"><label>Type</label><select id="rt">${S.requestForm.types.map(t=>`<option>${esc(t)}</option>`).join('')}</select></div><div class="fg"><label>Name</label><input type="text" id="rn" placeholder="First and last"></div><div class="fg"><label>House</label><select id="rh"><option value="">Select</option>${S.requestForm.houses.map(h2=>`<option>${esc(h2)}</option>`).join('')}</select></div><div class="fg"><label>Details</label><textarea id="rd" placeholder="What do you need?"></textarea></div><button class="fs" onclick="sr()">Send Request</button></div></div>`:''}<nav class="nav">${navItems}</nav><script>var SD=${JSON.stringify(ss)};function rs(i){var d=SD[i],c=document.getElementById('fsc');c.innerHTML='<div class="sd">'+d.label+'</div>'+d.items.map(function(t){return'<div class="si"><span class="st">'+t.time+(t.end?'<small>to '+t.end+'</small>':'')+'</span><span class="sl">'+t.title+(t.sub?'<small>'+t.sub+'</small>':'')+'</span></div>'}).join('')}function sd2(b,i){document.querySelectorAll('.dtb').forEach(function(t){t.style.background='var(--bs)';t.style.color='var(--tm)';t.style.borderColor='var(--bsb)';t.style.fontWeight='500'});b.style.background='var(--bp)';b.style.color='var(--bpt)';b.style.borderColor='var(--bp)';b.style.fontWeight='600';rs(i)}function sp(p){document.querySelectorAll('.ps').forEach(function(s){s.classList.remove('ac')});document.getElementById('p-'+p).classList.add('ac');document.querySelectorAll('.nv').forEach(function(n){n.classList.remove('ac')});var b=document.querySelector('.nv[data-p="'+p+'"]');if(b)b.classList.add('ac');window.scrollTo({top:0})}function orf(){var m=document.getElementById('rm');if(!m)return;m.style.display='flex';requestAnimationFrame(function(){requestAnimationFrame(function(){m.classList.add('sh2')})})}function cm(){var m=document.getElementById('rm');m.classList.remove('sh2');setTimeout(function(){m.style.display='none'},350)}function sr(){var n=document.getElementById('rn').value;if(!n){sw('Enter your name');return}var body=JSON.stringify({request_type:document.getElementById('rt').value,guest_name:n,house:document.getElementById('rh').value,details:document.getElementById('rd').value});fetch('https://bikgkvdkvaatqrphkjla.supabase.co/rest/v1/concierge_requests',{method:'POST',headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpa2drdmRrdmFhdHFycGhramxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDM3MDMsImV4cCI6MjA4NjMxOTcwM30.Hu5XkJoWnCAObIk4FD-zFhw8VFg9LjpX0of2YJQnRDI','Authorization':'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpa2drdmRrdmFhdHFycGhramxhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDM3MDMsImV4cCI6MjA4NjMxOTcwM30.Hu5XkJoWnCAObIk4FD-zFhw8VFg9LjpX0of2YJQnRDI','Content-Type':'application/json','Prefer':'return=minimal'},body:body}).then(function(r){if(r.ok){sw('Request sent!');cm();fetch('/api/notify',{method:'POST',headers:{'Content-Type':'application/json'},body:body}).catch(function(){});document.getElementById('rn').value='';document.getElementById('rd').value='';}else{sw('Error - try calling concierge');}}).catch(function(){sw('Error - try calling concierge');})}function ct(t){navigator.clipboard.writeText(t).then(function(){sw('Copied!')}).catch(function(){sw(t)})}function sw(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('sh2');setTimeout(function(){t.classList.remove('sh2')},2500)}rs(0);<\/script></body></html>`;
+}
+let rt;function rp(){clearTimeout(rt);rt=setTimeout(()=>{document.getElementById('fr').srcdoc=genHTML();},400);}
+function xHTML(){const b=new Blob([genHTML()],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='index.html';a.click();xt2('Downloaded!');}
+function cHTML(){navigator.clipboard.writeText(genHTML()).then(()=>xt2('Copied!'));}
+function xJSON(){const c={...S};delete c._sd;delete c._pm;const b=new Blob([JSON.stringify(c,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='concierge-config.json';a.click();xt2('Exported!');}
+function iJSON(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{Object.assign(S,JSON.parse(ev.target.result));save();location.reload();}catch(err){xt2('Invalid');}};r.readAsText(f);}
+function iTheme(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);if(d.colors)S.colors={...S.colors,...d.colors};if(d.dark)S.colors={...S.colors,...d.dark};if(d.fontHeading)S.fontHeading=d.fontHeading;if(d.fontBody)S.fontBody=d.fontBody;if(d.fontTime)S.fontTime=d.fontTime;if(d.borderRadius!==undefined)S.borderRadius=d.borderRadius;if(d.uiIconSet)S.uiIconSet=d.uiIconSet;if(d.contentIconSet)S.contentIconSet=d.contentIconSet;if(d.iconSet){S.uiIconSet=d.iconSet;S.contentIconSet=d.iconSet;}if(d.customIcons)S.customIcons=d.customIcons;if(d.iconOverrides)S.iconOverrides=d.iconOverrides;if(d.useLogo!==undefined)S.useLogo=d.useLogo;if(d.logoData)S.logoData=d.logoData;if(d.logoHeight)S.logoHeight=d.logoHeight;if(d.swatches)S.swatches=d.swatches;if(d.customPresets)S.customPresets=d.customPresets;save();rndr();rp();xt2('Theme imported!');}catch(err){xt2('Invalid file');}};r.readAsText(f);e.target.value='';}
+function xt2(m){const t=document.getElementById('xt');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
+
+(async function(){load();initTabs();rndr();rp();const sb=await loadFromSB();if(sb){rndr();rp();console.log('Loaded from Supabase');}})();
+</script>
+</body>
+</html>
