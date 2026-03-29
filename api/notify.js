@@ -1,23 +1,18 @@
 export default async function handler(req, res) {
-  // Set CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { request_type, guest_name, house, details } = req.body;
   const msg = `New ${request_type || 'Request'} from ${guest_name || 'Guest'}${house ? ' (' + house + ')' : ''}${details ? ': ' + details : ''}`;
 
-  // Get notification targets from Supabase config
   let notifyPhone = '';
   let notifyEmail = '';
+  let notifySMS = true;
+  let notifyEmailOn = true;
   
   try {
     const configRes = await fetch(
@@ -31,8 +26,11 @@ export default async function handler(req, res) {
     );
     const configData = await configRes.json();
     if (configData && configData[0] && configData[0].config) {
-      notifyPhone = configData[0].config.notifyPhone || '';
-      notifyEmail = configData[0].config.notifyEmail || '';
+      const cfg = configData[0].config;
+      notifyPhone = cfg.notifyPhone || '';
+      notifyEmail = cfg.notifyEmail || '';
+      notifySMS = cfg.notifySMS !== false;
+      notifyEmailOn = cfg.notifyEmailOn !== false;
     }
   } catch (e) {
     console.log('Config fetch failed:', e);
@@ -40,8 +38,7 @@ export default async function handler(req, res) {
 
   const results = { sms: null, email: null };
 
-  // Send SMS via Twilio
-  if (notifyPhone) {
+  if (notifySMS && notifyPhone) {
     try {
       const twilioRes = await fetch(
         `https://api.twilio.com/2010-04-01/Accounts/${process.env.TWILIO_SID}/Messages.json`,
@@ -65,8 +62,7 @@ export default async function handler(req, res) {
     }
   }
 
-  // Send Email via Resend
-  if (notifyEmail) {
+  if (notifyEmailOn && notifyEmail) {
     try {
       const emailRes = await fetch('https://api.resend.com/emails', {
         method: 'POST',
