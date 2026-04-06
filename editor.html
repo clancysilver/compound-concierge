@@ -442,8 +442,9 @@ function rContent(){
   if(!S.gateway)S.gateway={enabled:false,mode:'login',loginTitle:'Welcome',loginSubtitle:'Enter your last name to continue',splashImage:'',splashBlocks:[]};
   if(!S.gateway.splashBlocks)S.gateway.splashBlocks=[];
   // Add virtual section so full renderBlockEditor works for gateway blocks
-  window._gwSecIdx=S.sections.length;
-  S.sections.push({id:'__gw__',name:'Gateway',navLabel:'',icon:'',showInNav:false,showOnHome:false,cardBg:'',parentId:'',blocks:S.gateway.splashBlocks});
+  var existingGw=S.sections.findIndex(s=>s.id==='__gw__');
+  if(existingGw>=0){S.sections[existingGw].blocks=S.gateway.splashBlocks;window._gwSecIdx=existingGw;}
+  else{window._gwSecIdx=S.sections.length;S.sections.push({id:'__gw__',name:'Gateway',navLabel:'',icon:'',showInNav:false,showOnHome:false,cardBg:'',parentId:'',blocks:S.gateway.splashBlocks});}
   const gwBlocksHTML=S.gateway.splashBlocks.map((b,bi)=>renderBlockEditor(window._gwSecIdx,bi,b)).join('');
   let gwBody='<div class="etr"><span class="tl">Enable gateway page</span><button class="etg'+(S.gateway.enabled?' on':'')+'" onclick="this.classList.toggle(\'on\');S.gateway.enabled=this.classList.contains(\'on\');save();rp()"></button></div><div class="ediv"></div><div class="er"><label class="el">Gateway Mode</label><select class="ei" onchange="S.gateway.mode=this.value;save();rndr();rp()"><option value="login"'+(S.gateway.mode==='login'?' selected':'')+'>Login (last name verification)</option><option value="splash"'+(S.gateway.mode==='splash'?' selected':'')+'>Splash (info page)</option></select></div><div class="ediv"></div>';
   gwBody+='<button class="ab" style="margin-bottom:8px" onclick="localStorage.removeItem(\'gwPassed\');localStorage.removeItem(\'gwGuest\');xt2(\'Gateway reset — refresh preview\');rp()">Reset Gateway (clear login)</button>';
